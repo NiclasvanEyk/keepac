@@ -2,12 +2,14 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::vec;
 
-use crate::structs::{Changelog, Changes, NextRelease, Release, ReleaseDate, Releases, Version};
+use crate::parse::structs::{
+    Changelog, Changes, NextRelease, Release, ReleaseDate, Releases, Version,
+};
 
 struct PendingRelease {
     pub heading: String,
     pub changes: Changes,
-    pub current_change_type: Option<String>,
+    // pub current_change_type: Option<String>,
 }
 
 impl PendingRelease {
@@ -15,7 +17,7 @@ impl PendingRelease {
         return PendingRelease {
             heading: String::from(heading),
             changes: Changes::empty(),
-            current_change_type: Option::None,
+            // current_change_type: Option::None,
         };
     }
 
