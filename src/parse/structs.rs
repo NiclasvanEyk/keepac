@@ -1,3 +1,5 @@
+use std::fmt;
+
 use lazy_static::lazy_static;
 use regex::Regex;
 
@@ -22,7 +24,7 @@ pub type ReleaseDate = String;
 
 #[derive(Debug)]
 pub struct Release {
-    pub release_date: ReleaseDate, // Should be some data structure
+    pub date: ReleaseDate, // Should be some data structure
     pub version: Version,
     pub changes: Changes,
     pub yanked: bool,
@@ -35,6 +37,17 @@ pub struct Version {
     pub patch: u8,
     pub prerelease: bool,
     pub buildmetadata: Option<String>,
+}
+
+impl fmt::Display for Version {
+    // This trait requires `fmt` with this exact signature.
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        // Write strictly the first element into the supplied output
+        // stream: `f`. Returns `fmt::Result` which indicates whether the
+        // operation succeeded or failed. Note that `write!` uses syntax which
+        // is very similar to `println!`.
+        write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
+    }
 }
 
 impl Version {
@@ -58,6 +71,15 @@ impl Version {
 }
 
 pub type ChangeDescription = String;
+
+pub enum ChangeType {
+    Added,
+    Changed,
+    Deprecated,
+    Fixed,
+    Removed,
+    Security,
+}
 
 #[derive(Debug)]
 pub struct Changes {

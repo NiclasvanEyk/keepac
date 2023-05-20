@@ -3,6 +3,7 @@ use clap::{Parser, Subcommand};
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     Find {},
+    List {},
 }
 
 #[derive(Parser, Debug)]

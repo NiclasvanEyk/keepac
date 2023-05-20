@@ -5,7 +5,7 @@ mod parse;
 
 use clap::Parser;
 use cli::{ChangelogCli, Commands};
-use commands::find;
+use commands::{find, list};
 
 fn main() {
     let cli = ChangelogCli::parse();
@@ -14,5 +14,6 @@ fn main() {
     // matches just as you would the top level cmd
     match &cli.command {
         Commands::Find {} => find(),
+        Commands::List {} => list(),
     }
 }

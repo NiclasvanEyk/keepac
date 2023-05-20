@@ -6,10 +6,12 @@ use crate::parse::structs::{
     Changelog, Changes, NextRelease, Release, ReleaseDate, Releases, Version,
 };
 
+use super::structs::ChangeType;
+
 struct PendingRelease {
     pub heading: String,
     pub changes: Changes,
-    // pub current_change_type: Option<String>,
+    pub current_change_type: Option<ChangeType>,
 }
 
 impl PendingRelease {
@@ -17,7 +19,7 @@ impl PendingRelease {
         return PendingRelease {
             heading: String::from(heading),
             changes: Changes::empty(),
-            // current_change_type: Option::None,
+            current_change_type: Option::None,
         };
     }
 
@@ -26,7 +28,7 @@ impl PendingRelease {
 
         return Result::Ok(Release {
             version,
-            release_date,
+            date: release_date,
             changes: self.changes,
             yanked: false, // TODO
         });
@@ -62,6 +64,7 @@ pub fn parse(source: &str) -> Result<Changelog, String> {
         if check_for_next_release && is_next_release_heading(line) {
             check_for_next_release = false;
             pending_release_is_next_release = true;
+            pending_release = Some(PendingRelease::new("Unreleased"));
             continue;
         }
 
@@ -425,5 +428,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
         assert_eq!("Changelog", changelog.title);
 
         print!("{:?}", changelog);
+    }
+
+    #[test]
+    fn it_can_parse_pending_releases() {
+        let result = parse(
+            r#"
+            # Changelog
+
+            ## [Unreleased]
+
+            ### Added
+            - Something
+        "#,
+        );
+
+        assert!(result.is_ok());
+
+        let changelog = result.unwrap();
+        assert!(changelog.releases.next.is_some());
+
+        let next_release = changelog.releases.next.unwrap();
+        assert!(next_release.changes.added.is_some());
     }
 }
