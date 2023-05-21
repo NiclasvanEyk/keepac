@@ -199,6 +199,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "lazy_static",
+ "markdown",
  "regex",
  "uuid",
 ]
@@ -220,6 +221,15 @@ name = "linux-raw-sys"
 version = "0.3.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ef53942eb7bf7ff43a617b3e2c1c4a5ecf5944a7c1bc12d7ee39bbb15e5c1519"
+
+[[package]]
+name = "markdown"
+version = "1.0.0-alpha.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1c45dae11dd8af468c41201ace44dbbb3b1148215ac593cb8f0967b8d8d4b66c"
+dependencies = [
+ "unicode-id",
+]
 
 [[package]]
 name = "memchr"
@@ -334,6 +344,12 @@ dependencies = [
  "quote",
  "unicode-ident",
 ]
+
+[[package]]
+name = "unicode-id"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d70b6494226b36008c8366c288d77190b3fad2eb4c10533139c1c1f461127f1a"
 
 [[package]]
 name = "unicode-ident"

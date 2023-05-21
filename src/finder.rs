@@ -1,4 +1,23 @@
+use std::env::current_dir;
 use std::path::{Path, PathBuf};
+
+pub fn find_changelog_relative_to_cwd() -> Result<PathBuf, String> {
+    let cwd = current_dir();
+    if cwd.is_err() {
+        return Result::Err(String::from(
+            "Could not determine current working directory!",
+        ));
+    }
+
+    let changelog = find_changelog(&cwd.unwrap());
+    if changelog.is_none() {
+        return Result::Err(String::from(
+            "Could not find a changelog relative to the current working directory!",
+        ));
+    }
+
+    return Result::Ok(changelog.unwrap());
+}
 
 /// Tries to find a file containing a changelog relative to the directory.
 ///

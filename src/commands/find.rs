@@ -1,28 +1,9 @@
-use std::path::PathBuf;
-use std::{env::current_dir, process};
+use std::process;
 
-use crate::finder::find_changelog;
-
-pub fn find_from_cwd() -> Result<PathBuf, String> {
-    let cwd = current_dir();
-    if cwd.is_err() {
-        return Result::Err(String::from(
-            "Could not determine current working directory!",
-        ));
-    }
-
-    let changelog = find_changelog(&cwd.unwrap());
-    if changelog.is_none() {
-        return Result::Err(String::from(
-            "Could not find a changelog relative to the current working directory!",
-        ));
-    }
-
-    return Result::Ok(changelog.unwrap());
-}
+use crate::finder::find_changelog_relative_to_cwd;
 
 pub fn find() {
-    match find_from_cwd() {
+    match find_changelog_relative_to_cwd() {
         Result::Err(message) => {
             eprintln!("{}", message);
             process::exit(1);

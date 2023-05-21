@@ -30,13 +30,25 @@ pub struct Release {
     pub yanked: bool,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Version {
     pub major: u8,
     pub minor: u8,
     pub patch: u8,
     pub prerelease: bool,
     pub buildmetadata: Option<String>,
+}
+
+impl Version {
+    pub fn new(major: u8, minor: u8, patch: u8) -> Version {
+        return Version {
+            major,
+            minor,
+            patch,
+            prerelease: false,
+            buildmetadata: None,
+        };
+    }
 }
 
 impl fmt::Display for Version {
