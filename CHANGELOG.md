@@ -1,9 +1,6 @@
-# Changelog
-
 ## [Unreleased]
 
-- A feature
+### Added
 
-## [0.0.1] - 2000-01-01
+- Something even more useful
 
-- A feature
