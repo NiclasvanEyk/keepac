@@ -15,9 +15,8 @@ import (
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
-	Use:          "init",
-	SilenceUsage: true,
-	Short:        "A brief description of your command",
+	Use:   "init",
+	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -40,9 +39,14 @@ to quickly create a Cobra application.`,
 
 ## [Unreleased]
 `
-		fmt.Printf("Initialized empty changelog at %s!\n", changelogPath)
 
-		return os.WriteFile(changelogPath, []byte(changelogContents), 0774)
+		err = os.WriteFile(changelogPath, []byte(changelogContents), 0774)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("Initialized empty changelog at %s:\n", changelogPath)
+		return clog.Show(changelogContents)
 	},
 }
 

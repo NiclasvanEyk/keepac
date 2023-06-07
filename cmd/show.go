@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	clog "github.com/niclasvaneyk/keepac/internal/changelog"
 
-	"github.com/charmbracelet/glamour"
 	"github.com/spf13/cobra"
 )
 
@@ -15,32 +13,18 @@ var showCmd = &cobra.Command{
 	Use:   "show",
 	Short: "Displays the contents of the nearest changelog.",
 	Long:  `Displays the contents of the nearest changelog.`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		path, err := clog.ResolvePathToChangelog()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
-			os.Exit(1)
+			return err
 		}
 
 		source, err := os.ReadFile(path)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
-			os.Exit(1)
+			return err
 		}
 
-		renderer, _ := glamour.NewTermRenderer(
-			// detect background color and pick either the default dark or light theme
-			glamour.WithAutoStyle(),
-			glamour.WithEnvironmentConfig(),
-		)
-
-		out, err := renderer.Render(string(source))
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error: %v\n", err)
-			os.Exit(1)
-		}
-
-		fmt.Print(out)
+		return clog.Show(string(source))
 	},
 }
 
