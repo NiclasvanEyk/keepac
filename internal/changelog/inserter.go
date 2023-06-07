@@ -120,7 +120,7 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 		if len(changelog.Releases.Past) == 0 {
 			// We have an empty changelog with just the title:
 			// # Changelog                  <-- Add here
-			return changelog.Stop(), Padding{Before: 2, After: 0}
+			return changelog.Stop(), Padding{Before: 1, After: 0} // Only 1 Padding here, since it is reasonable to assume that the file already has a \n at the end
 		}
 
 		// We have some releases, but no next one:
@@ -163,7 +163,7 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 		//
 		// ## [Unreleased]               <-- Add after this line
 		if len(changelog.Releases.Past) == 0 {
-			return changelog.Stop(), Padding{Before: 2, After: 0}
+			return changelog.Stop(), Padding{Before: 1, After: 0} // Only 1 Padding here, since it is reasonable to assume that the file already has a \n at the end
 		}
 
 		latestRelease := changelog.Releases.Past[len(changelog.Releases.Past)-1]
