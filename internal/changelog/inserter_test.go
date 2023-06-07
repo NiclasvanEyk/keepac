@@ -60,81 +60,158 @@ func TestAddToJustAfterRelease(t *testing.T) {
 	scenario(t, source, changeType, addition, expected)
 }
 
-// Just after release
-//===============
-// # Changelog
-//
-// ## [1.1.0] - 2020-01-01        <-- Add before this line
-//
-// ### Added
+func TestAddToExistingSectionInNextRelease(t *testing.T) {
+	source := `# Changelog
 
-// Section exists
-//===============
-// # Changelog
-//
-// ## [Unreleased]
-//
-// ### Added
-//
-// - Something
-// - Something else              <-- Add after this line
-//
-// ## [1.1.0] - 2020-01-01
+## [Unreleased]
 
-// Create Section - Add 'Added' section
-//===============
-// # Changelog
-//
-// ## [Unreleased]
-//
-// ### Removed                   <-- Add before this line
-//
-// - Something
-// - Something else
-//
-// ## [1.1.0] - 2020-01-01
+### Added
 
-// Create Section - B
-//===============
-// # Changelog
-//
-// ## [Unreleased]
-//
-// ### Removed                    <-- Add before this line
-//
-// - Something
-// - Something else
-//
-// ## [1.1.0] - 2020-01-01
+- Something`
+	changeType := Added
+	addition := "- Another New Thing"
+	expected := `# Changelog
 
-// Create Section - C
-//===============
-// # Changelog
-//
-// ## [Unreleased]
-//
-// ### Added
-//
-// - Something
-// - Something else
-//
-// ### Removed                    <-- Add before this line
-//
-// - Something
-// - Something else
-//
-// ## [1.1.0] - 2020-01-01
+## [Unreleased]
 
-// Create Section - D
-//===============
-// # Changelog
-//
-// ## [Unreleased]               <-- Add after this line
-//
-// ## [1.1.0] - 2020-01-01
+### Added
 
-// Create Section - D
-//===============
-// # Changelog
-//
-// ## [Unreleased]               <-- Add after this line
+- Something
+- Another New Thing`
+
+	scenario(t, source, changeType, addition, expected)
+}
+
+func TestAddNewAddedSectionAboveRemovedOne(t *testing.T) {
+	source := `# Changelog
+
+## [Unreleased]
+
+### Removed
+
+- Something
+- Something else
+
+## [1.1.0] - 2020-01-01
+
+### Added
+
+- Something`
+	changeType := Added
+	addition := "- Something new"
+	expected := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- Something new
+
+### Removed
+
+- Something
+- Something else
+
+## [1.1.0] - 2020-01-01
+
+### Added
+
+- Something`
+
+	scenario(t, source, changeType, addition, expected)
+}
+
+func TestAddNewDeprecatedSectionBetweenAddedAndRemovedOnes(t *testing.T) {
+	source := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- Something new
+
+### Removed
+
+- Something
+- Something else
+
+## [1.1.0] - 2020-01-01
+
+### Added
+
+- Something`
+	changeType := Deprecated
+	addition := "- Something that will be removed"
+	expected := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- Something new
+
+### Deprecated
+
+- Something that will be removed
+
+### Removed
+
+- Something
+- Something else
+
+## [1.1.0] - 2020-01-01
+
+### Added
+
+- Something`
+
+	scenario(t, source, changeType, addition, expected)
+}
+
+func TestInsertsAfterEmptyButExistingUnreleasedSection(t *testing.T) {
+	source := `# Changelog
+
+## [Unreleased]
+
+## [1.1.0] - 2020-01-01
+
+### Added
+
+- Something`
+	changeType := Added
+	addition := "- Something"
+	expected := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- Something
+
+## [1.1.0] - 2020-01-01
+
+### Added
+
+- Something`
+
+	scenario(t, source, changeType, addition, expected)
+}
+
+func TestInsertsAfterEmptyButExistingUnreleasedSectionWithoutAnyPastReleases(t *testing.T) {
+	source := `# Changelog
+
+## [Unreleased]
+`
+	changeType := Added
+	addition := "- Something"
+	expected := `# Changelog
+
+## [Unreleased]
+
+
+### Added
+
+- Something`
+
+	scenario(t, source, changeType, addition, expected)
+}

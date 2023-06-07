@@ -1,6 +1,7 @@
 package changelog
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -46,39 +47,39 @@ import (
 //
 // - The initial version
 
-func (changelog *Changelog) InsertAt(insertionPoint int, contents string) {
-	source := changelog.source
-	newSource := source[:insertionPoint] + contents + source[insertionPoint:]
-	changelog.source = newSource
-
-	addedContentLength := len(contents)
-
-	nextRelease := changelog.Releases.Next
-
-	sections := make([]*Section, 0)
-
-	if nextRelease != nil {
-		for _, section := range nextRelease.Sections {
-			sections = append(sections, &section)
-		}
-	}
-
-	for _, release := range changelog.Releases.Past {
-		for _, section := range release.Sections {
-			sections = append(sections, &section)
-		}
-	}
-
-	for _, section := range sections {
-		if section.Bounds.Start >= insertionPoint {
-			section.Bounds.Start += addedContentLength
-		}
-
-		if section.Bounds.Stop >= insertionPoint {
-			section.Bounds.Stop += addedContentLength
-		}
-	}
-}
+// func (changelog *Changelog) InsertAt(insertionPoint int, contents string) {
+// 	source := changelog.source
+// 	newSource := source[:insertionPoint] + contents + source[insertionPoint:]
+// 	changelog.source = newSource
+//
+// 	addedContentLength := len(contents)
+//
+// 	nextRelease := changelog.Releases.Next
+//
+// 	sections := make([]*Section, 0)
+//
+// 	if nextRelease != nil {
+// 		for _, section := range nextRelease.Sections {
+// 			sections = append(sections, &section)
+// 		}
+// 	}
+//
+// 	for _, release := range changelog.Releases.Past {
+// 		for _, section := range release.Sections {
+// 			sections = append(sections, &section)
+// 		}
+// 	}
+//
+// 	for _, section := range sections {
+// 		if section.Bounds.Start >= insertionPoint {
+// 			section.Bounds.Start += addedContentLength
+// 		}
+//
+// 		if section.Bounds.Stop >= insertionPoint {
+// 			section.Bounds.Stop += addedContentLength
+// 		}
+// 	}
+// }
 
 func (changelog *Changelog) AddItem(changeType ChangeType, contents string) string {
 	parts := make([]string, 0)
@@ -97,6 +98,7 @@ func (changelog *Changelog) AddItem(changeType ChangeType, contents string) stri
 	newContent := strings.Join(parts, "\n\n")
 
 	insertionPoint, padding := determineInsertionPoint(changeType, changelog)
+	fmt.Printf("Inserting new section at %v\n", insertionPoint)
 
 	return changelog.source[:insertionPoint] + padding.ApplyTo(newContent) + changelog.source[insertionPoint:]
 }
@@ -114,6 +116,7 @@ func (p *Padding) ApplyTo(subject string) string {
 func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, Padding) {
 	nextRelease := changelog.Releases.Next
 	if nextRelease == nil {
+		fmt.Println("nextRelease is nil")
 		if len(changelog.Releases.Past) == 0 {
 			// We have an empty changelog with just the title:
 			// # Changelog                  <-- Add here
@@ -143,7 +146,11 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 	// ## [1.1.0] - 2020-01-01
 	existingSection := nextRelease.FindSection(changeType)
 	if existingSection != nil {
-		return existingSection.Bounds.Start, Padding{Before: 1, After: 0}
+		fmt.Println("Found an existing section")
+		fmt.Printf("%v\n", existingSection.Bounds)
+		return existingSection.Bounds.Stop, Padding{Before: 1, After: 0}
+	} else {
+		fmt.Println("existing section is nil")
 	}
 
 	// Now we know, that the section does not exist yet.
@@ -172,11 +179,11 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 	// changelogs are edited by hand.
 
 	// This is rather simple, if we can simply prepend it before an existing
-	// section.
-	canPrepend := int(changeType) < len(nextRelease.Sections)
-	if canPrepend {
-		followingSection := nextRelease.Sections[int(changeType)]
-		return followingSection.Bounds.Start, Padding{Before: 0, After: 2}
+	// section that the section to insert would preceed.
+	for _, section := range nextRelease.Sections {
+		if int(changeType) < int(section.Type) {
+			return section.Bounds.Start, Padding{Before: 0, After: 2}
+		}
 	}
 
 	// Now the only thing left is the case where we need to append the new

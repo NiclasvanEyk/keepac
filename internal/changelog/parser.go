@@ -1,6 +1,7 @@
 package changelog
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/yuin/goldmark"
@@ -164,6 +165,8 @@ func Parse(source []byte) Changelog {
 
 	var title = ""
 	var currentRelease *Release
+	currentReleaseIsNextRelease := false
+	var nextRelease *NextRelease
 
 	ast.Walk(root, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
 		if !entering {
@@ -172,6 +175,8 @@ func Parse(source []byte) Changelog {
 
 		if node.Kind() == ast.KindHeading {
 			heading := node.(*ast.Heading)
+			text := heading.Text(source)
+			fmt.Printf("%s", text)
 
 			if title == "" && heading.Level == 1 {
 				title = string(heading.Text(source))
@@ -179,18 +184,29 @@ func Parse(source []byte) Changelog {
 
 			if heading.Level == 2 {
 				if currentRelease != nil {
-					releases = append(releases, *currentRelease)
+					if currentReleaseIsNextRelease {
+						nextRelease = &NextRelease{
+							Sections: currentRelease.Sections,
+						}
+					} else {
+						releases = append(releases, *currentRelease)
+					}
 				}
 
 				r := NewRelease("unknown", "unknown")
+				bounds := ComputeBounds(heading)
+				r.Begin = bounds.Start - 3 // we subtract the length of "## " to achieve better insertion points
 				currentRelease = &r
+				currentReleaseIsNextRelease = string(heading.Text(source)) == "[Unreleased]"
 			}
 
 			if heading.Level == 3 && entering {
+				bounds := ComputeBounds(heading)
+				bounds.Start = bounds.Start - 4 // we subtract the length of "### " to achieve better insertion points
 				section := Section{
 					Type:   ParseChangeType(string(heading.Text(source))),
 					Items:  make([]string, 0),
-					Bounds: EmptyBounds(),
+					Bounds: bounds,
 				}
 				(*currentRelease).Sections = append((*currentRelease).Sections, section)
 			}
@@ -202,7 +218,7 @@ func Parse(source []byte) Changelog {
 		if beginsListOfChanges {
 			list := node.(*ast.List)
 			bounds := ComputeBounds(list)
-			currentRelease.Sections[len(currentRelease.Sections)-1].Bounds = bounds
+			currentRelease.Sections[len(currentRelease.Sections)-1].Bounds.Stop = bounds.Stop
 		}
 
 		if node.Kind() == ast.KindListItem && currentRelease != nil && len(currentRelease.Sections) > 0 {
@@ -216,14 +232,20 @@ func Parse(source []byte) Changelog {
 	})
 
 	if currentRelease != nil {
-		releases = append(releases, *currentRelease)
+		if currentReleaseIsNextRelease {
+			nextRelease = &NextRelease{
+				Sections: currentRelease.Sections,
+			}
+		} else {
+			releases = append(releases, *currentRelease)
+		}
 	}
 
 	changelog := Changelog{
 		Title:  title,
 		source: string(source),
 		Releases: Releases{
-			Next: nil,
+			Next: nextRelease,
 			Past: releases,
 		},
 	}

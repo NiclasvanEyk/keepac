@@ -31,6 +31,7 @@ var showCmd = &cobra.Command{
 		renderer, _ := glamour.NewTermRenderer(
 			// detect background color and pick either the default dark or light theme
 			glamour.WithAutoStyle(),
+			glamour.WithEnvironmentConfig(),
 		)
 
 		out, err := renderer.Render(string(source))
