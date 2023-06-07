@@ -15,7 +15,7 @@ func handleErr(err error) {
 	}
 }
 
-func findChangelogIn(directory string) (string, bool) {
+func FindChangelogIn(directory string) (string, bool) {
 	changelogPath := filepath.Join(directory, "CHANGELOG.md")
 	_, err := os.Stat(changelogPath)
 	if err != nil {
@@ -51,7 +51,7 @@ func ResolvePathToChangelog() (string, error) {
 
 	changelogPath, wasFound := "", false
 	hikeDir(cwd, func(directory string) error {
-		changelogPath, wasFound = findChangelogIn(directory)
+		changelogPath, wasFound = FindChangelogIn(directory)
 		if wasFound {
 			return fs.SkipAll
 		}

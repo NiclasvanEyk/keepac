@@ -1,27 +1,48 @@
 /*
 Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
 	"fmt"
+	"os"
+	"path"
+
+	clog "github.com/niclasvaneyk/keepac/internal/changelog"
 
 	"github.com/spf13/cobra"
 )
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "A brief description of your command",
+	Use:          "init",
+	SilenceUsage: true,
+	Short:        "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("init called")
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+
+		changelogPath, wasFound := clog.FindChangelogIn(cwd)
+		if wasFound {
+			return fmt.Errorf("changelog already exists at %s!", changelogPath)
+		}
+
+		changelogPath = path.Join(cwd, "CHANGELOG.md")
+		changelogContents := `# Changelog
+
+## [Unreleased]
+`
+		fmt.Printf("Initialized empty changelog at %s!\n", changelogPath)
+
+		return os.WriteFile(changelogPath, []byte(changelogContents), 0774)
 	},
 }
 
