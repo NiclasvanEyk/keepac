@@ -50,10 +50,11 @@ jobs:
           path: "tapes/dummy.tape"
       - name: Record tapes
         run: ./scripts/record-tapes
+      - run: ls -alh ${{ github.workspace }}/tapes/recordings
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: "${GITHUB_WORKSPACE}/tapes/recordings"
+          path: ${{ github.workspace }}/tapes/recordings
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
