@@ -4,6 +4,8 @@ on:
   push:
     branches: [$default-branch]
 
+  workflow_dispatch:
+
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
@@ -37,7 +39,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: "tapes/recordings"
+          path: rtapes/recordings"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
