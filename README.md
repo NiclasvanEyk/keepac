@@ -2,8 +2,10 @@
 
 > An opiniated way of managing changelogs adhering to the [keepachangelog](https://keepachangelog.com/) guidelines.
 
-![](https://niclasvaneyk.github.io/keepac/demo.light.gif#gh-light-mode-only)
-![](https://niclasvaneyk.github.io/keepac/demo.dark.gif#gh-dark-mode-only)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/demo.dark.gif">
+  <img src="https://niclasvaneyk.github.io/keepac/demo.light.gif">
+</picture>
 
 ## Installation
 
@@ -40,14 +42,16 @@ Renders the nearest changelog right inside your terminal using [charmbracelet/gl
 
 Opens the nearest changelog inside your `$EDITOR`.
 
-![](https://niclasvaneyk.github.io/keepac/insert.light.gif#gh-light-mode-only)
-![](https://niclasvaneyk.github.io/keepac/insert.dark.gif#gh-dark-mode-only)
-
 If you did not set the `$EDITOR` environment variable, commands like `xdg-open` or `open` are used as a fallback.
 
-### `changelog add`
+### `changelog insert`
 
 Adds a new entry to one of your sections in the changelog.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/insert.dark.gif">
+  <img src="https://niclasvaneyk.github.io/keepac/insert.light.gif">
+</picture>
 
 Now we arrive at the more useful features of keepac.
 Most of the edits to your changelog are additive and will most likely touch the next release.
@@ -56,7 +60,7 @@ This is why the keepachangelog guidelines suggest keeping the `[Unreleased]` sec
 By default we assume you want to add to the next release, so running
 
 ```shell
-changelog add
+changelog insert
 ```
 
 will open up either your `$EDITOR` or an inline one if the `$EDITOR` environment variable is not set.
