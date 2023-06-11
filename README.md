@@ -1,6 +1,6 @@
 # `keepac`
 
-> An opiniated way of managing changelogs adhering to the [keepachangelog](https://keepachangelog.com/) guidelines.
+An opiniated way of managing changelogs adhering to the [keepachangelog](https://keepachangelog.com/) guidelines.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/demo.dark.gif">
