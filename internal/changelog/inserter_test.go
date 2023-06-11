@@ -82,6 +82,54 @@ func TestAddToExistingSectionInNextRelease(t *testing.T) {
 	scenario(t, source, changeType, addition, expected)
 }
 
+func TestAppendToExistingSectionInNextReleaseWithoutPastReleases(t *testing.T) {
+	source := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- First
+- Second
+- Third`
+	changeType := Added
+	addition := "- Fourth"
+	expected := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- First
+- Second
+- Third
+- Fourth`
+
+	scenario(t, source, changeType, addition, expected)
+}
+
+func TestAddToNewSectionInNextReleaseWithoutPastReleases(t *testing.T) {
+	source := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- Something`
+	changeType := Changed
+	addition := "- Another New Thing"
+	expected := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- Something
+- Another New Thing`
+
+	scenario(t, source, changeType, addition, expected)
+}
+
 func TestAddNewAddedSectionAboveRemovedOne(t *testing.T) {
 	source := `# Changelog
 

@@ -1,4 +1,4 @@
-Output demo.gif
+Require changelog
 
 Type "changelog find"
 Enter
@@ -11,3 +11,6 @@ Enter
 Sleep 1500ms
 
 Type "changelog add"
+
+Enter
+Sleep 1500ms

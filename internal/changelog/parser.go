@@ -1,7 +1,6 @@
 package changelog
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/yuin/goldmark"
@@ -175,8 +174,6 @@ func Parse(source []byte) Changelog {
 
 		if node.Kind() == ast.KindHeading {
 			heading := node.(*ast.Heading)
-			text := heading.Text(source)
-			fmt.Printf("%s", text)
 
 			if title == "" && heading.Level == 1 {
 				title = string(heading.Text(source))

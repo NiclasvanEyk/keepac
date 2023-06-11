@@ -1,7 +1,6 @@
 package changelog
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -98,7 +97,6 @@ func (changelog *Changelog) AddItem(changeType ChangeType, contents string) stri
 	newContent := strings.Join(parts, "\n\n")
 
 	insertionPoint, padding := determineInsertionPoint(changeType, changelog)
-	fmt.Printf("Inserting new section at %v\n", insertionPoint)
 
 	return changelog.source[:insertionPoint] + padding.ApplyTo(newContent) + changelog.source[insertionPoint:]
 }
@@ -116,7 +114,6 @@ func (p *Padding) ApplyTo(subject string) string {
 func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, Padding) {
 	nextRelease := changelog.Releases.Next
 	if nextRelease == nil {
-		fmt.Println("nextRelease is nil")
 		if len(changelog.Releases.Past) == 0 {
 			// We have an empty changelog with just the title:
 			// # Changelog                  <-- Add here
@@ -146,11 +143,7 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 	// ## [1.1.0] - 2020-01-01
 	existingSection := nextRelease.FindSection(changeType)
 	if existingSection != nil {
-		fmt.Println("Found an existing section")
-		fmt.Printf("%v\n", existingSection.Bounds)
 		return existingSection.Bounds.Stop, Padding{Before: 1, After: 0}
-	} else {
-		fmt.Println("existing section is nil")
 	}
 
 	// Now we know, that the section does not exist yet.

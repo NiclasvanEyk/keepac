@@ -3,8 +3,8 @@ package cmd
 import (
 	// "fmt"
 
-	"fmt"
 	"os"
+	"strings"
 
 	clog "github.com/niclasvaneyk/keepac/internal/changelog"
 	"github.com/niclasvaneyk/keepac/internal/editor"
@@ -54,19 +54,19 @@ var insertCmd = &cobra.Command{
 			}
 		}
 
-		response, err := editor.Prompt("- ", "<!-- Add your changes above. Don't worry, this line will be excluded from the final output. -->")
-		if err != nil {
-			return err
+		var response string
+		if len(args) > 0 {
+			response = strings.Join(args, " ")
+		} else {
+			response, err = editor.Prompt("- ", "<!-- Add your changes above. Don't worry, this line will be excluded from the final output. -->")
+			if err != nil {
+				return err
+			}
 		}
 
-		// TODO: Support adding a section via a flag (--added, --changed, deleted)
-		// TODO: Prompt for the section if none was specified
-		// TODO: Create the section, if it was not present previously
-		//
-		// TODO: Add the response to the specified section
+		response = normalized(response)
 
 		newSource := changelog.AddItem(changeType, response)
-
 		return os.WriteFile(filename, []byte(newSource), 0774)
 	},
 }
@@ -93,7 +93,15 @@ func chooseChangeType() clog.ChangeType {
 		"Security",
 	})
 
-	fmt.Printf("choice was: %s\n", choice)
-
 	return clog.ParseChangeType(choice)
+}
+
+func normalized(response string) string {
+	normalized := strings.TrimSpace(response)
+
+	if strings.HasPrefix(normalized, "- ") {
+		return normalized
+	}
+
+	return "- " + normalized
 }

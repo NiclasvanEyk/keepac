@@ -8,13 +8,6 @@ import (
 	"path/filepath"
 )
 
-func handleErr(err error) {
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-}
-
 func FindChangelogIn(directory string) (string, bool) {
 	changelogPath := filepath.Join(directory, "CHANGELOG.md")
 	_, err := os.Stat(changelogPath)

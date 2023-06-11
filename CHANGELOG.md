@@ -1,6 +1,11 @@
+# Changelog
+
 ## [Unreleased]
 
 ### Added
 
-- Something even more useful
-
+- The initial version
+- Something Why does this not get inserted at the end?
+- Something This is unexpected
+- Something really good
+- foo bar foo

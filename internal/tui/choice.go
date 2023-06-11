@@ -32,8 +32,6 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 		return
 	}
 
-	str := fmt.Sprintf("%s", i)
-
 	fn := itemStyle.Render
 	if index == m.Index() {
 		fn = func(s ...string) string {
@@ -41,7 +39,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 		}
 	}
 
-	fmt.Fprint(w, fn(str))
+	fmt.Fprint(w, fn(string(i)))
 }
 
 type model struct {
@@ -67,7 +65,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			i, ok := m.list.SelectedItem().(item)
 			if ok {
-				fmt.Printf("You chose %s!\n", i)
 				m.onSelect(i)
 			}
 			return m, tea.Quit

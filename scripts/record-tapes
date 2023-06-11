@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+
+from os import path
+import os
+import pathlib
+import sys
+import subprocess
+
+project_root_folder = pathlib.Path(path.dirname(__file__), '..').resolve()
+tapes_folder = project_root_folder / 'tapes'
+dark_tapes_folder = tapes_folder / 'dark'
+light_tapes_folder = tapes_folder / 'light'
+gifs_folder = tapes_folder / 'recordings'
+
+
+def main() -> int:
+    create_light_tapes()
+    record_tapes()
+
+    return 0
+
+
+def create_light_tapes() -> None:
+  for dark_tape in dark_tapes_folder.glob('*.tape'):
+    with open(light_tapes_folder.joinpath(dark_tape.name), 'w') as light_tape:
+      print(f"Creating light version of {light_tape.name}...")
+      light_tape.write("# This file is auto-generated and will be overridden!\n\n")
+      light_tape.write("Set Theme Github\n")
+      light_tape.write(dark_tape.read_text())
+
+
+def record_tapes() -> None:
+   recorded_tapes = 0
+
+
+
+   for tapes in [light_tapes_folder, dark_tapes_folder]:
+      colorscheme = tapes.name
+
+      local_env = os.environ
+      # Uses locally built version of keepac
+      local_env["PATH"] = str(project_root_folder) + ":" + local_env["PATH"]
+      # Auto-colorscheme detection does not work within vhs, so we manually
+      # set the style here
+      local_env["GLAMOUR_STYLE"] = colorscheme
+
+      print(f"Recording {colorscheme} tapes...\n")
+      for tape in tapes.glob('*.tape'):
+        subprocess.run(['vhs', tape], env=local_env, cwd=tapes)
+
+        recording = tapes / 'out.gif'
+        tape_name = path.splitext(tape.name)[0]
+        destination = gifs_folder / f'{tape_name}.{colorscheme}.gif'
+
+        print(f"Moving {recording} to {destination}...")
+        recording.rename(destination)
+        recorded_tapes += 1
+
+      print("")
+
+   print("Done!")
+   print(f"Recorded {recorded_tapes} tapes.")
+
+
+if __name__ == '__main__':
+    sys.exit(main())
