@@ -29,17 +29,31 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - uses: actions/setup-go@v4
+      - id: go-cache-paths
+        run: |
+          echo "::set-output name=go-build::$(go env GOCACHE)"
+          echo "::set-output name=go-mod::$(go env GOMODCACHE)"
+      - name: Go Build Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.go-cache-paths.outputs.go-build }}
+          key: ${{ runner.os }}-go-build-${{ hashFiles('**/go.sum') }}
+      - name: Go Mod Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.go-cache-paths.outputs.go-mod }}
+          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
       - name: Build keepac
         run: go build -o changelog
       - uses: charmbracelet/vhs-action@v1
         with:
-          path: "tapes/dark/demo.tape"
+          path: "tapes/dummy.tape"
       - name: Record tapes
         run: ./scripts/record-tapes
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: rtapes/recordings"
+          path: tapes/recordings"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
