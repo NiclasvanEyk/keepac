@@ -1,3 +1,6 @@
 # Binaries
 /changelog
 /keepac
+
+# GoReleaser output
+dist/
