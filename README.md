@@ -2,7 +2,8 @@
 
 > An opiniated way of managing changelogs adhering to the [keepachangelog](https://keepachangelog.com/) guidelines.
 
-> > INSERT https://github.com/charmbracelet/vhs GIF HERE<<<
+![](https://niclasvaneyk.github.io/keepac/demo.light.gif#gh-light-mode-only)
+![](https://niclasvaneyk.github.io/keepac/demo.dark.gif#gh-dark-mode-only)
 
 ## Installation
 
@@ -38,6 +39,9 @@ Renders the nearest changelog right inside your terminal using [charmbracelet/gl
 ### `changelog edit`
 
 Opens the nearest changelog inside your `$EDITOR`.
+
+![](https://niclasvaneyk.github.io/keepac/insert.light.gif#gh-light-mode-only)
+![](https://niclasvaneyk.github.io/keepac/insert.dark.gif#gh-dark-mode-only)
 
 If you did not set the `$EDITOR` environment variable, commands like `xdg-open` or `open` are used as a fallback.
 
