@@ -29,11 +29,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - uses: actions/setup-go@v4
+      - name: Build keepac
+        run: go build -o changelog
       - uses: charmbracelet/vhs-action@v1
         with:
           path: "tapes/dark/demo.tape"
-      - name: Build keepac
-        run: go build -o changelog
       - name: Record tapes
         run: ./scripts/record-tapes
       - name: Upload artifact
