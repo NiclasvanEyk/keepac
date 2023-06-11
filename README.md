@@ -9,7 +9,37 @@
 
 ## Installation
 
-TBD
+### Pre-built Binaries
+
+This section contains a few copy-pastable gists that should download and install the latest version of the `changelog` binary to `/usr/local/bin`. If your arch/OS is not listed here, you may be able to download it from the [GitHub Releases Page](https://github.com/NiclasvanEyk/keepac/releases).
+
+#### Linux
+
+```shell
+curl -sL https://github.com/NiclasvanEyk/keepac/releases/latest/download/keepac_Linux_x86_64.tar.gz | tar -xz && mv changelog /usr/local/bin/ && changelog --help
+```
+
+#### MacOS
+
+##### Intel
+
+```shell
+curl -sL https://github.com/NiclasvanEyk/keepac/releases/latest/download/keepac_Darwin_x86_64.tar.gz | tar -xz && mv changelog /usr/local/bin/ && changelog --help
+```
+
+##### Apple Silicon
+
+```shell
+curl -sL https://github.com/NiclasvanEyk/keepac/releases/latest/download/keepac_Darwin_arm64.tar.gz | tar -xz && mv changelog /usr/local/bin/ && changelog --help
+```
+
+### From Source
+
+If you are not able to download and install a pre-built version, you may build one yourself by cloning this repository and running
+
+```shell
+go build -o changelog
+```
 
 ## Usage
 
