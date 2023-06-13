@@ -6,6 +6,7 @@ before:
     - go mod tidy
     # you may remove this if you don't need go generate
     - go generate ./...
+    - ./scripts/generate-completions
 builds:
   - main: main.go
     binary: changelog
@@ -30,7 +31,8 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
-    files: []
+    files:
+      - completions/*
 
 checksum:
   name_template: "checksums.txt"
@@ -42,6 +44,32 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+brews:
+  - install: |-
+      bin.install "changelog"
+      bash_completion.install "completions/changelog.bash" => "changelog"
+      zsh_completion.install "completions/changelog.zsh" => "_changelog"
+      fish_completion.install "completions/changelog.fish"
+nfpms:
+  - section: utils
+    formats:
+      - apk
+      - deb
+      - rpm
+      - archlinux
+    contents:
+      - src: ./completions/changelog.bash
+        dst: /usr/share/bash-completion/completions/changelog
+        file_info:
+          mode: 0644
+      - src: ./completions/changelog.fish
+        dst: /usr/share/fish/vendor_completions.d/changelog.fish
+        file_info:
+          mode: 0644
+      - src: ./completions/changelog.zsh
+        dst: /usr/share/zsh/vendor-completions/_changelog
+        file_info:
+          mode: 0644
 # The lines beneath this are called `modelines`. See `:help modeline`
 # Feel free to remove those if you don't want/use them.
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json

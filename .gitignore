@@ -4,3 +4,4 @@
 
 # GoReleaser output
 dist/
+completions/
