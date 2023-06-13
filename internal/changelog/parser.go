@@ -2,6 +2,7 @@ package changelog
 
 import (
 	"math"
+	"regexp"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
@@ -20,7 +21,9 @@ func (changelog *Changelog) Stop() int {
 }
 
 type NextRelease struct {
-	Sections []Section
+	HeadlineBounds Bounds
+	Bounds         Bounds
+	Sections       []Section
 }
 
 type Releases struct {
@@ -44,8 +47,11 @@ type Release struct {
 	Yanked   bool
 	Version  string
 
+	HeadlineBounds Bounds
+
 	// Position of the first character of the release block (the heading)
-	Begin int
+	Begin  int
+	Bounds Bounds
 }
 
 func NewRelease(version string, date string) Release {
@@ -180,19 +186,31 @@ func Parse(source []byte) Changelog {
 			}
 
 			if heading.Level == 2 {
+				headingBounds := ComputeBounds(heading)
 				if currentRelease != nil {
 					if currentReleaseIsNextRelease {
 						nextRelease = &NextRelease{
-							Sections: currentRelease.Sections,
+							Bounds: Bounds{
+								Start: currentRelease.HeadlineBounds.Start - 3,
+								Stop:  headingBounds.Start - 1,
+							},
+							HeadlineBounds: currentRelease.HeadlineBounds,
+							Sections:       currentRelease.Sections,
 						}
 					} else {
+						currentRelease.Bounds.Stop = headingBounds.Start - 1
 						releases = append(releases, *currentRelease)
 					}
 				}
 
-				r := NewRelease("unknown", "unknown")
-				bounds := ComputeBounds(heading)
-				r.Begin = bounds.Start - 3 // we subtract the length of "## " to achieve better insertion points
+				line := string(heading.Text(source))
+				r := NewRelease(parseVersion(line), parseDate(line))
+				r.HeadlineBounds = headingBounds
+				r.Bounds = Bounds{
+					// we subtract the length of "## " to achieve better insertion points
+					Start: r.HeadlineBounds.Start - 3,
+					Stop:  r.HeadlineBounds.Stop, // This will be incremented later
+				}
 				currentRelease = &r
 				currentReleaseIsNextRelease = string(heading.Text(source)) == "[Unreleased]"
 			}
@@ -230,7 +248,17 @@ func Parse(source []byte) Changelog {
 
 	if currentRelease != nil {
 		if currentReleaseIsNextRelease {
+			stop := len(source)
+			if len(releases) > 0 {
+				stop = releases[len(releases)-1].Bounds.Start - 1
+			}
+
 			nextRelease = &NextRelease{
+				HeadlineBounds: currentRelease.HeadlineBounds,
+				Bounds: Bounds{
+					Start: currentRelease.HeadlineBounds.Start - 3,
+					Stop:  stop,
+				},
 				Sections: currentRelease.Sections,
 			}
 		} else {
@@ -248,4 +276,36 @@ func Parse(source []byte) Changelog {
 	}
 
 	return changelog
+}
+
+func HasChanges(sections *([]Section)) bool {
+	for _, section := range *sections {
+		for range section.Items {
+			return true
+		}
+	}
+
+	return false
+}
+
+func parseVersion(line string) string {
+	semver := regexp.MustCompile("(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?")
+	slice := semver.Find([]byte(line))
+
+	if slice != nil {
+		return string(slice)
+	}
+
+	return ""
+}
+
+func parseDate(line string) string {
+	semver := regexp.MustCompile("[0-9]{4}-[0-9]-{2}-[0-9]{2}")
+	slice := semver.Find([]byte(line))
+
+	if slice != nil {
+		return string(slice)
+	}
+
+	return ""
 }

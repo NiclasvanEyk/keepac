@@ -126,7 +126,7 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 		// ## [1.1.0] - 2020-01-01        <-- Add before this line
 		//
 		// ### Added
-		return changelog.Releases.Past[0].Begin, Padding{Before: 0, After: 2}
+		return changelog.Releases.Past[0].Bounds.Start, Padding{Before: 0, After: 2}
 	}
 
 	// At this point we can be sure that we need to insert somewhere inside the
@@ -183,5 +183,11 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 	// section at the very end of the [Unreleased] section. Another way of
 	// framing this is inserting it before the latest release, which is
 	// guaranteed to exist, since we handled this edge case earlier.
-	return changelog.Releases.Past[0].Begin, Padding{Before: 0, After: 2}
+	return changelog.Releases.Past[0].Bounds.Start, Padding{Before: 0, After: 2}
+}
+
+func (changelog *Changelog) ReplacedWithinBounds(bounds Bounds, replacement string) string {
+	source := changelog.source
+
+	return source[:bounds.Start] + replacement + source[bounds.Stop:]
 }

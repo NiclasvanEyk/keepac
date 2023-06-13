@@ -36,6 +36,7 @@ require (
 )
 
 require (
+	github.com/blang/semver/v4 v4.0.0
 	github.com/charmbracelet/bubbles v0.16.1
 	github.com/charmbracelet/bubbletea v0.24.2
 	github.com/charmbracelet/glamour v0.6.0

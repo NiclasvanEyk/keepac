@@ -17,7 +17,10 @@ var (
 	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Bold(true)
 )
 
-type item string
+type item struct {
+	value string
+	index int
+}
 
 func (i item) FilterValue() string { return "" }
 
@@ -39,7 +42,7 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 		}
 	}
 
-	fmt.Fprint(w, fn(string(i)))
+	fmt.Fprint(w, fn(i.value))
 }
 
 type model struct {
@@ -80,10 +83,10 @@ func (m model) View() string {
 	return m.list.View()
 }
 
-func Choice(title string, options []string) string {
+func Choice(title string, options []string) (string, int) {
 	items := make([]list.Item, 0)
-	for _, option := range options {
-		items = append(items, item(option))
+	for index, option := range options {
+		items = append(items, item{value: option, index: index})
 	}
 
 	const defaultWidth = 20
@@ -99,8 +102,10 @@ func Choice(title string, options []string) string {
 	l.Styles.Title = titleStyle
 
 	choice := ""
+	index := -1
 	m := model{list: l, onSelect: func(i item) {
-		choice = string(i)
+		choice = i.value
+		index = i.index
 	}}
 
 	if _, err := tea.NewProgram(m).Run(); err != nil {
@@ -108,5 +113,10 @@ func Choice(title string, options []string) string {
 		os.Exit(1)
 	}
 
-	return choice
+	if index == -1 {
+		fmt.Println("Aborted")
+		os.Exit(0)
+	}
+
+	return choice, index
 }

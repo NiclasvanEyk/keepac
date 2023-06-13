@@ -84,7 +84,7 @@ func init() {
 }
 
 func chooseChangeType() clog.ChangeType {
-	choice := tui.Choice("What type of change do you want to document?", []string{
+	choice, _ := tui.Choice("What type of change do you want to document?", []string{
 		"Added",
 		"Changed",
 		"Deprecated",

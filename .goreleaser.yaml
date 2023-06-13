@@ -30,10 +30,8 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
-    files:
-      - "LICENSE.md"
-      - "README.md"
-      - "CHANGELOG.md"
+    files: []
+
 checksum:
   name_template: "checksums.txt"
 snapshot:
