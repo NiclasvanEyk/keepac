@@ -3,6 +3,7 @@ package changelog
 import (
 	"math"
 	"regexp"
+	"strings"
 
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
@@ -205,6 +206,7 @@ func Parse(source []byte) Changelog {
 
 				line := string(heading.Text(source))
 				r := NewRelease(parseVersion(line), parseDate(line))
+				r.Yanked = strings.Contains(line, "[YANKED]")
 				r.HeadlineBounds = headingBounds
 				r.Bounds = Bounds{
 					// we subtract the length of "## " to achieve better insertion points
@@ -308,4 +310,14 @@ func parseDate(line string) string {
 	}
 
 	return ""
+}
+
+func (changelog *Changelog) FindRelease(version string) *Release {
+	for _, release := range changelog.Releases.Past {
+		if release.Version == version {
+			return &release
+		}
+	}
+
+	return nil
 }

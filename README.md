@@ -103,3 +103,15 @@ Turns the `[Unreleased]` section into a proper versioned release.
 You may pass a version adhering to SemVer or use the `--major`, `--minor`, `--patch` flags.
 Note that there must be prior releases in order to use these!
 By default the current date is used as the realease date, but you may override this using the `--date` option.
+
+### `changelog yank <version>`
+
+Marks the specified released as yanked`. To cite [Keep a Changelog](https://keepachangelog.com/en/1.1.0/#yanked):
+
+> Yanked releases are versions that had to be pulled because of a serious bug or security issue. Often these versions don't even appear in change logs. They should. This is how you should display them:
+>
+> ```markdown
+> ## [0.0.5] - 2014-12-13 [YANKED]
+> ```
+>
+> The [YANKED] tag is loud for a reason. It's important for people to notice it. Since it's surrounded by brackets it's also easier to parse programmatically.
