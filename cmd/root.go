@@ -42,6 +42,9 @@ func init() {
 	// Help is already accessible via --help
 	rootCmd.SetHelpCommand(&cobra.Command{Hidden: true})
 
+	// Hide 'completions' command from help (most users won't need this, it does not relate to changelogs)
+	rootCmd.CompletionOptions.HiddenDefaultCmd = true
+
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
