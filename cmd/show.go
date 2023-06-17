@@ -1,12 +1,15 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	clog "github.com/niclasvaneyk/keepac/internal/changelog"
 
 	"github.com/spf13/cobra"
 )
+
+var shouldShowPlain bool
 
 // showCmd represents the show command
 var showCmd = &cobra.Command{
@@ -24,6 +27,11 @@ var showCmd = &cobra.Command{
 			return err
 		}
 
+		if shouldShowPlain {
+			fmt.Print(string(source))
+			return nil
+		}
+
 		return clog.Show(string(source))
 	},
 }
@@ -36,6 +44,8 @@ func init() {
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	// showCmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	showCmd.Flags().BoolVarP(&shouldShowPlain, "plain", "p", false, "Only print the raw contents, without terminal decorations")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
