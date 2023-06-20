@@ -160,7 +160,7 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 		}
 
 		latestRelease := changelog.Releases.Past[len(changelog.Releases.Past)-1]
-		return latestRelease.Begin, Padding{Before: 0, After: 2}
+		return latestRelease.Bounds.Start, Padding{Before: 0, After: 2}
 	}
 
 	// Now with all other edge cases handled we can shift our focus to adding a

@@ -49,10 +49,7 @@ type Release struct {
 	Version  string
 
 	HeadlineBounds Bounds
-
-	// Position of the first character of the release block (the heading)
-	Begin  int
-	Bounds Bounds
+	Bounds         Bounds
 }
 
 func NewRelease(version string, date string) Release {
@@ -189,17 +186,18 @@ func Parse(source []byte) Changelog {
 			if heading.Level == 2 {
 				headingBounds := ComputeBounds(heading)
 				if currentRelease != nil {
+					stop := headingBounds.Start - 3
 					if currentReleaseIsNextRelease {
 						nextRelease = &NextRelease{
 							Bounds: Bounds{
 								Start: currentRelease.HeadlineBounds.Start - 3,
-								Stop:  headingBounds.Start - 1,
+								Stop:  stop,
 							},
 							HeadlineBounds: currentRelease.HeadlineBounds,
 							Sections:       currentRelease.Sections,
 						}
 					} else {
-						currentRelease.Bounds.Stop = headingBounds.Start - 1
+						currentRelease.Bounds.Stop = stop
 						releases = append(releases, *currentRelease)
 					}
 				}

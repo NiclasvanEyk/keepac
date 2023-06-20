@@ -61,7 +61,6 @@ var showCmd = &cobra.Command{
 		}
 
 		changelog := clog.Parse(source)
-		// TODO: These bounds are always off by two (too much) at the Stop
 		bounds, err := findReleaseBounds(args[0], &changelog)
 		if err != nil {
 			return err
