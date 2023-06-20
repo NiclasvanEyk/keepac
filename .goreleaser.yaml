@@ -45,7 +45,8 @@ changelog:
       - "^docs:"
       - "^test:"
 brews:
-  - tap:
+  - homepage: "https://github.com/NiclasvanEyk/keepac"
+    tap:
       owner: NiclasvanEyk
       name: keepac-homebrew-tap
     install: |-
