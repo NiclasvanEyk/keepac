@@ -45,7 +45,10 @@ changelog:
       - "^docs:"
       - "^test:"
 brews:
-  - install: |-
+  - repository:
+      owner: NiclasvanEyk
+      name: keepac-homebrew-tap
+    install: |-
       bin.install "changelog"
       bash_completion.install "completions/changelog.bash" => "changelog"
       zsh_completion.install "completions/changelog.zsh" => "_changelog"
