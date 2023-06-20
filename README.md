@@ -25,6 +25,8 @@ curl -sL https://github.com/NiclasvanEyk/keepac/releases/latest/download/keepac_
 brew install niclasvaneyk/keepac/keepac
 ```
 
+> Note: You likely need to open a new shell instance after the installation succeeds in order for the completions to work properly
+
 ### From Source
 
 If you are not able to download and install a pre-built version, you may build one yourself by cloning this repository and running
