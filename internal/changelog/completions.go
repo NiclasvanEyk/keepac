@@ -8,7 +8,11 @@ import (
 
 // Can be passed as ValidArgsFunction to support custom completions if the
 // first argument is a released version.
-func CompleteReleasesAsFirstArgument(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+func CompleteReleasesAsFirstArgument(
+	cmd *cobra.Command,
+	args []string,
+	toComplete string,
+) ([]string, cobra.ShellCompDirective) {
 	if len(args) != 0 {
 		return nil, cobra.ShellCompDirectiveNoFileComp
 	}
