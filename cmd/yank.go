@@ -12,10 +12,11 @@ import (
 
 // yankCmd represents the yank command
 var yankCmd = &cobra.Command{
-	Use:   "yank",
-	Short: "Marks the specified release as yanked",
-	Long:  `As described by https://keepachangelog.com, yanked releases are versions that had to be pulled because of a serious bug or security issue.`,
-	Args:  cobra.ExactArgs(1),
+	Use:     "yank",
+	Aliases: []string{"yeet"},
+	Short:   "Marks the specified release as yanked",
+	Long:    `As described by https://keepachangelog.com, yanked releases are versions that had to be pulled because of a serious bug or security issue.`,
+	Args:    cobra.ExactArgs(1),
 	ValidArgsFunction: func(
 		cmd *cobra.Command,
 		args []string,
