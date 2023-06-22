@@ -2,7 +2,6 @@ package editor
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"runtime"
@@ -18,7 +17,7 @@ func Open(path string) error {
 		editorCommand.Stderr = os.Stderr
 		err := editorCommand.Run()
 		if err != nil {
-			return fmt.Errorf("Failed to open file with $EDITOR: %s", err)
+			return fmt.Errorf("failed to open file with $EDITOR: %s", err)
 		}
 		return nil
 	}
@@ -32,32 +31,32 @@ func Open(path string) error {
 	case "windows":
 		openCommand = exec.Command("cmd", "/c", "start", path)
 	default:
-		return fmt.Errorf("Unsupported operating system: %s", runtime.GOOS)
+		return fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
 
 	err := openCommand.Start()
 	if err != nil {
-		return fmt.Errorf("Failed to open file with default command: %s", err)
+		return fmt.Errorf("failed to open file with default command: %s", err)
 	}
 
 	return nil
 }
 
 func Prompt(initialContents string, description string) (string, error) {
-	tempFile, err := ioutil.TempFile("", "keepac-input.txt")
+	tempFile, err := os.CreateTemp("", "keepac-input.txt")
 	if err != nil {
-		return "", fmt.Errorf("Failed to create temporary file: %s", err)
+		return "", fmt.Errorf("failed to create temporary file: %s", err)
 	}
 	defer os.Remove(tempFile.Name())
 
 	contents := initialContents + "\n\n\n" + description
 	_, err = tempFile.WriteString(contents)
 	if err != nil {
-		return "", fmt.Errorf("Failed to write prompt to temporary file: %s", err)
+		return "", fmt.Errorf("failed to write prompt to temporary file: %s", err)
 	}
 
 	if err = tempFile.Close(); err != nil {
-		return "", fmt.Errorf("Failed to close temporary file: %s", err)
+		return "", fmt.Errorf("failed to close temporary file: %s", err)
 	}
 
 	err = Open(tempFile.Name())
@@ -65,9 +64,9 @@ func Prompt(initialContents string, description string) (string, error) {
 		return "", err
 	}
 
-	data, err := ioutil.ReadFile(tempFile.Name())
+	data, err := os.ReadFile(tempFile.Name())
 	if err != nil {
-		return "", fmt.Errorf("Failed to read file: %s", err)
+		return "", fmt.Errorf("failed to read file: %s", err)
 	}
 
 	response := string(data)

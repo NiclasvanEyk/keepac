@@ -35,7 +35,7 @@ var findCmd = &cobra.Command{
 			println("Only next latest release...")
 		}
 
-		return fmt.Errorf("Unknown display mode: %v\n", excerpt)
+		return fmt.Errorf("unknown display mode: %v", excerpt)
 	},
 }
 

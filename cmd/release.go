@@ -37,11 +37,11 @@ to quickly create a Cobra application.`,
 
 		nextRelease := changelog.Releases.Next
 		if nextRelease == nil {
-			return fmt.Errorf("%s does not contain an [Unreleased] section!", changelogPath)
+			return fmt.Errorf("%s does not contain an [Unreleased] section", changelogPath)
 		}
 
 		if !clog.HasChanges(&nextRelease.Sections) {
-			return fmt.Errorf("The [Unreleased] section of %s does not contain any changes!", changelogPath)
+			return fmt.Errorf("the [Unreleased] section of %s does not contain any changes", changelogPath)
 		}
 
 		var previousVersion semver.Version

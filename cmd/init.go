@@ -25,7 +25,7 @@ var initCmd = &cobra.Command{
 
 		changelogPath, wasFound := clog.FindChangelogIn(cwd)
 		if wasFound {
-			return fmt.Errorf("changelog already exists at %s!", changelogPath)
+			return fmt.Errorf("changelog already exists at %s", changelogPath)
 		}
 
 		changelogPath = path.Join(cwd, "CHANGELOG.md")

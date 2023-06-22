@@ -3,7 +3,6 @@ package changelog
 import (
 	"fmt"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -65,7 +64,7 @@ func ResolveChangelog() (*Changelog, string, error) {
 		return nil, "", err
 	}
 
-	contents, err := ioutil.ReadFile(filename)
+	contents, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, "", err
 	}

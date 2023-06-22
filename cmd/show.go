@@ -114,7 +114,7 @@ func findReleaseBounds(versionOrAlias string, changelog *clog.Changelog) (*clog.
 
 		if alias == "latest" {
 			if len(changelog.Releases.Past) < 1 {
-				return nil, fmt.Errorf("Cannot show latest release, since there are none")
+				return nil, fmt.Errorf("cannot show latest release, since there are none")
 			}
 
 			return &changelog.Releases.Past[0].Bounds, nil
@@ -123,19 +123,19 @@ func findReleaseBounds(versionOrAlias string, changelog *clog.Changelog) (*clog.
 		if alias == "next" || alias == "unreleased" {
 			nextRelease := changelog.Releases.Next
 			if nextRelease == nil {
-				return nil, fmt.Errorf("Cannot show next release, since there is none")
+				return nil, fmt.Errorf("cannot show next release, since there is none")
 			}
 
 			return &nextRelease.Bounds, nil
 		}
 
-		return nil, fmt.Errorf("Unknown version or alias '%s'")
+		return nil, fmt.Errorf("unknown version or alias '%s'", alias)
 	}
 
 	version := versionOrAlias
 	release := changelog.FindRelease(version)
 	if release == nil {
-		return nil, fmt.Errorf("Release '%s' not found", version)
+		return nil, fmt.Errorf("release '%s' not found", version)
 	}
 
 	return &release.Bounds, nil
