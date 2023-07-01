@@ -164,9 +164,9 @@ func Parse(source []byte) Changelog {
 	parser := goldmark.DefaultParser()
 	root := parser.Parse(reader)
 
-	var releases = make([]Release, 0)
+	releases := make([]Release, 0)
 
-	var title = ""
+	title := ""
 	var currentRelease *Release
 	currentReleaseIsNextRelease := false
 	var nextRelease *NextRelease

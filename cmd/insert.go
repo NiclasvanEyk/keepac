@@ -13,12 +13,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var changeTypeAdded bool
-var changeTypeChanged bool
-var changeTypeDeprecated bool
-var changeTypeRemoved bool
-var changeTypeFixed bool
-var changeTypeSecurity bool
+var (
+	changeTypeAdded      bool
+	changeTypeChanged    bool
+	changeTypeDeprecated bool
+	changeTypeRemoved    bool
+	changeTypeFixed      bool
+	changeTypeSecurity   bool
+)
 
 // insertCmd represents the insert command
 var insertCmd = &cobra.Command{
@@ -67,7 +69,7 @@ var insertCmd = &cobra.Command{
 		response = normalized(response)
 
 		newSource := changelog.AddItem(changeType, response)
-		return os.WriteFile(filename, []byte(newSource), 0774)
+		return os.WriteFile(filename, []byte(newSource), 0o774)
 	},
 }
 
