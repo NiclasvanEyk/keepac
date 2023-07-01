@@ -2,8 +2,10 @@ package changelog
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/charmbracelet/glamour"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func (changelog *Changelog) ContentWithin(bounds *Bounds) string {
@@ -11,11 +13,14 @@ func (changelog *Changelog) ContentWithin(bounds *Bounds) string {
 }
 
 func Show(contents string) error {
-	renderer, _ := glamour.NewTermRenderer(
-		// detect background color and pick either the default dark or light theme
+	renderer, err := glamour.NewTermRenderer(
 		glamour.WithAutoStyle(),
 		glamour.WithEnvironmentConfig(),
+		glamour.WithWordWrap(getWordWrapLimit()),
 	)
+	if err != nil {
+		return err
+	}
 
 	out, err := renderer.Render(contents)
 	if err != nil {
@@ -24,4 +29,18 @@ func Show(contents string) error {
 
 	fmt.Print(out)
 	return nil
+}
+
+func getWordWrapLimit() int {
+	current := int(os.Stdin.Fd())
+	width, _, err := terminal.GetSize(current)
+	if err != nil {
+		return 80
+	}
+
+	if width > 80 {
+		return 80
+	}
+
+	return width
 }
