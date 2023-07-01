@@ -67,6 +67,8 @@ While quite basic, this command can be used in conjunction with other tools to q
 
 Renders the nearest changelog right inside your terminal using [charmbracelet/glamour](https://github.com/charmbracelet/glamour).
 
+> Since keepac uses `glamour` to render markdown, you can theme its output by setting the `GLAMOUR_STYLE` environment variable to one of the [available styles](https://github.com/charmbracelet/glamour/tree/master/styles/gallery) or [create your own](https://github.com/charmbracelet/glamour/tree/master/styles).
+
 ### `changelog search`
 
 Searches for changes matching the given search query.
