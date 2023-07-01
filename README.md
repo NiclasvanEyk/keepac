@@ -4,7 +4,7 @@ An opiniated way of managing changelogs adhering to the [keepachangelog](https:/
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/demo.dark.gif">
-  <img src="https://niclasvaneyk.github.io/keepac/demo.light.gif">
+  <img src="https://niclasvaneyk.github.io/keepac/demo.light.gif" loading="lazy">
 </picture>
 
 ## Installation
@@ -67,6 +67,17 @@ While quite basic, this command can be used in conjunction with other tools to q
 
 Renders the nearest changelog right inside your terminal using [charmbracelet/glamour](https://github.com/charmbracelet/glamour).
 
+### `changelog search`
+
+Searches for changes matching the given search query.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/search.dark.gif">
+  <img src="https://niclasvaneyk.github.io/keepac/search.light.gif" loading="lazy">
+</picture>
+
+Matches are displayed with contextual information, such as the version the change was released in and its type of change.
+
 ### `changelog edit`
 
 Opens the nearest changelog inside your `$EDITOR`.
@@ -79,7 +90,7 @@ Adds a new entry to one of your sections in the changelog.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/insert.dark.gif">
-  <img src="https://niclasvaneyk.github.io/keepac/insert.light.gif">
+  <img src="https://niclasvaneyk.github.io/keepac/insert.light.gif" loading="lazy">
 </picture>
 
 Now we arrive at the more useful features of keepac.

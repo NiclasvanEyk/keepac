@@ -116,7 +116,11 @@ type Bounds struct {
 
 type Section struct {
 	Type   ChangeType
-	Items  []string
+	Items  []Item
+	Bounds Bounds
+}
+
+type Item struct {
 	Bounds Bounds
 }
 
@@ -212,7 +216,8 @@ func Parse(source []byte) Changelog {
 					Stop:  r.HeadlineBounds.Stop, // This will be incremented later
 				}
 				currentRelease = &r
-				currentReleaseIsNextRelease = string(heading.Text(source)) == "[Unreleased]"
+				text := string(heading.Text(source))
+				currentReleaseIsNextRelease = text == "[Unreleased]" || text == "Unreleased"
 			}
 
 			if heading.Level == 3 && entering {
@@ -220,7 +225,7 @@ func Parse(source []byte) Changelog {
 				bounds.Start = bounds.Start - 4 // we subtract the length of "### " to achieve better insertion points
 				section := Section{
 					Type:   ParseChangeType(string(heading.Text(source))),
-					Items:  make([]string, 0),
+					Items:  make([]Item, 0),
 					Bounds: bounds,
 				}
 				(*currentRelease).Sections = append((*currentRelease).Sections, section)
@@ -237,8 +242,7 @@ func Parse(source []byte) Changelog {
 		}
 
 		if node.Kind() == ast.KindListItem && currentRelease != nil && len(currentRelease.Sections) > 0 {
-			item := node.(*ast.ListItem)
-			change := string(item.Text(source))
+			change := Item{Bounds: ComputeBounds(node)}
 			section := &currentRelease.Sections[len(currentRelease.Sections)-1]
 			section.Items = append(section.Items, change)
 		}
