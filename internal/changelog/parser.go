@@ -216,7 +216,8 @@ func Parse(source []byte) Changelog {
 					Stop:  r.HeadlineBounds.Stop, // This will be incremented later
 				}
 				currentRelease = &r
-				currentReleaseIsNextRelease = string(heading.Text(source)) == "[Unreleased]"
+				text := string(heading.Text(source))
+				currentReleaseIsNextRelease = text == "[Unreleased]" || text == "Unreleased"
 			}
 
 			if heading.Level == 3 && entering {
