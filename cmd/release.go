@@ -15,9 +15,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var isMajor bool
-var isMinor bool
-var isPatch bool
+var (
+	isMajor bool
+	isMinor bool
+	isPatch bool
+)
 
 // releaseCmd represents the release command
 var releaseCmd = &cobra.Command{
@@ -59,7 +61,7 @@ to quickly create a Cobra application.`,
 		bounds := nextRelease.HeadlineBounds
 		newSource := changelog.ReplacedWithinBounds(bounds, newHeadline)
 
-		err = os.WriteFile(changelogPath, []byte(newSource), 0774)
+		err = os.WriteFile(changelogPath, []byte(newSource), 0o774)
 		if err != nil {
 			return err
 		}

@@ -53,7 +53,7 @@ var yankCmd = &cobra.Command{
 			return err
 		}
 
-		err = os.WriteFile(changelogPath, []byte(newSource), 0774)
+		err = os.WriteFile(changelogPath, []byte(newSource), 0o774)
 		if err != nil {
 			return err
 		}

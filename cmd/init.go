@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 `
 
-		err = os.WriteFile(changelogPath, []byte(changelogContents), 0774)
+		err = os.WriteFile(changelogPath, []byte(changelogContents), 0o774)
 		if err != nil {
 			return err
 		}
