@@ -67,6 +67,17 @@ While quite basic, this command can be used in conjunction with other tools to q
 
 Renders the nearest changelog right inside your terminal using [charmbracelet/glamour](https://github.com/charmbracelet/glamour).
 
+### `changelog search`
+
+Searches for changes matching the given search query.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/search.dark.gif">
+  <img src="https://niclasvaneyk.github.io/keepac/search.light.gif" loading="lazy">
+</picture>
+
+Matches are displayed with contextual information, such as the version the change was released in and its type of change.
+
 ### `changelog edit`
 
 Opens the nearest changelog inside your `$EDITOR`.
