@@ -4,7 +4,7 @@ An opiniated way of managing changelogs adhering to the [keepachangelog](https:/
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/demo.dark.gif">
-  <img src="https://niclasvaneyk.github.io/keepac/demo.light.gif">
+  <img src="https://niclasvaneyk.github.io/keepac/demo.light.gif" loading="lazy">
 </picture>
 
 ## Installation
@@ -79,7 +79,7 @@ Adds a new entry to one of your sections in the changelog.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/insert.dark.gif">
-  <img src="https://niclasvaneyk.github.io/keepac/insert.light.gif">
+  <img src="https://niclasvaneyk.github.io/keepac/insert.light.gif" loading="lazy">
 </picture>
 
 Now we arrive at the more useful features of keepac.
