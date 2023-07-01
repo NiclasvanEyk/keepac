@@ -1,6 +1,8 @@
 package changelog
 
-import "strings"
+import (
+	"strings"
+)
 
 func Search(changelog *Changelog, query string) string {
 	output := make([]string, 0)
@@ -11,20 +13,19 @@ func Search(changelog *Changelog, query string) string {
 		for _, section := range nextRelease.Sections {
 			includedSection := false
 			for _, item := range section.Items {
-				if strings.Contains(item, query) {
+				text := changelog.ContentWithin(&item.Bounds)
+				if strings.Contains(text, query) {
 					if !includedRelease {
 						includedRelease = true
 						output = append(output, "## "+changelog.ContentWithin(&nextRelease.HeadlineBounds))
-						output = append(output, "")
 					}
 
 					if !includedSection {
 						includedSection = true
 						output = append(output, "### "+ChangeTypeLabel(section.Type))
-						output = append(output, "")
 					}
 
-					output = append(output, "- "+item)
+					output = append(output, "- "+text)
 				}
 			}
 		}
@@ -35,7 +36,8 @@ func Search(changelog *Changelog, query string) string {
 		for _, section := range release.Sections {
 			includedSection := false
 			for _, item := range section.Items {
-				if strings.Contains(item, query) {
+				text := changelog.ContentWithin(&item.Bounds)
+				if strings.Contains(text, query) {
 					if !includedRelease {
 						includedRelease = true
 						output = append(output, "## "+changelog.ContentWithin(&release.HeadlineBounds))
@@ -47,7 +49,7 @@ func Search(changelog *Changelog, query string) string {
 						output = append(output, "### "+ChangeTypeLabel(section.Type))
 						output = append(output, "")
 					}
-					output = append(output, "- "+item)
+					output = append(output, "- "+text)
 				}
 			}
 		}
