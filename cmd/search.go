@@ -1,22 +1,33 @@
 package cmd
 
 import (
+	"fmt"
+
 	clog "github.com/niclasvaneyk/keepac/internal/changelog"
 	"github.com/spf13/cobra"
 )
 
 // searchCmd represents the grep command
 var searchCmd = &cobra.Command{
-	Use:   "search",
-	Short: "Searches for strings in the nearest changelog and prints matches within their context",
-	Long:  ``,
+	Use:     "search [query]",
+	Aliases: []string{"grep"},
+	Short:   "Searches for strings in the nearest changelog and prints matches within their context",
+	Long:    ``,
+	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		changelog, _, err := clog.ResolveChangelog()
 		if err != nil {
 			return err
 		}
 
-		return nil
+		query := args[0]
+		result := clog.Search(changelog, query)
+
+		if result == "" {
+			fmt.Println("Nothing matched your query!")
+		}
+
+		return clog.Show(result + "\n")
 	},
 }
 
