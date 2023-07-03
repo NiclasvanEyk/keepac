@@ -22,6 +22,25 @@ var (
 	changeTypeSecurity   bool
 )
 
+func runInsertCmd(changelog *clog.Changelog, args []string, filename string, changeType clog.ChangeType) error {
+	var response string
+	var err error
+
+	if len(args) > 0 {
+		response = strings.Join(args, " ")
+	} else {
+		response, err = editor.Prompt("- ", "<!-- Add your changes above. Don't worry, this line will be excluded from the final output. -->")
+		if err != nil {
+			return err
+		}
+	}
+
+	response = normalized(response)
+
+	newSource := changelog.AddItem(changeType, response)
+	return os.WriteFile(filename, []byte(newSource), 0o774)
+}
+
 // insertCmd represents the insert command
 var insertCmd = &cobra.Command{
 	Use:     "insert",
@@ -56,20 +75,7 @@ var insertCmd = &cobra.Command{
 			}
 		}
 
-		var response string
-		if len(args) > 0 {
-			response = strings.Join(args, " ")
-		} else {
-			response, err = editor.Prompt("- ", "<!-- Add your changes above. Don't worry, this line will be excluded from the final output. -->")
-			if err != nil {
-				return err
-			}
-		}
-
-		response = normalized(response)
-
-		newSource := changelog.AddItem(changeType, response)
-		return os.WriteFile(filename, []byte(newSource), 0o774)
+		return runInsertCmd(changelog, args, filename, changeType)
 	},
 }
 

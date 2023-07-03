@@ -1,14 +1,9 @@
 package cmd
 
 import (
-	// "fmt"
-
 	"fmt"
-	"os"
-	"strings"
 
 	clog "github.com/niclasvaneyk/keepac/internal/changelog"
-	"github.com/niclasvaneyk/keepac/internal/editor"
 
 	"github.com/spf13/cobra"
 )
@@ -29,20 +24,7 @@ func alias(command string, aliases []string, changeType clog.ChangeType) *cobra.
 				return err
 			}
 
-			var response string
-			if len(args) > 0 {
-				response = strings.Join(args, " ")
-			} else {
-				response, err = editor.Prompt("- ", "<!-- Add your changes above. Don't worry, this line will be excluded from the final output. -->")
-				if err != nil {
-					return err
-				}
-			}
-
-			response = normalized(response)
-
-			newSource := changelog.AddItem(changeType, response)
-			return os.WriteFile(filename, []byte(newSource), 0o774)
+			return runInsertCmd(changelog, args, filename, changeType)
 		},
 	}
 }
