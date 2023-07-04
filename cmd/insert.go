@@ -3,6 +3,7 @@ package cmd
 import (
 	// "fmt"
 
+	"fmt"
 	"os"
 	"strings"
 
@@ -22,6 +23,25 @@ var (
 	changeTypeSecurity   bool
 )
 
+func runInsertCmd(changelog *clog.Changelog, args []string, filename string, changeType clog.ChangeType) error {
+	var response string
+	var err error
+
+	if len(args) > 0 {
+		response = strings.Join(args, " ")
+	} else {
+		response, err = editor.Prompt("- ", "<!-- Add your changes above. Don't worry, this line will be excluded from the final output. -->")
+		if err != nil {
+			return err
+		}
+	}
+
+	response = normalized(response)
+
+	newSource := changelog.AddItem(changeType, response)
+	return os.WriteFile(filename, []byte(newSource), 0o774)
+}
+
 // insertCmd represents the insert command
 var insertCmd = &cobra.Command{
 	Use:     "insert",
@@ -29,7 +49,16 @@ var insertCmd = &cobra.Command{
 	Short:   "Inserts a new entry to a specified section of the next release",
 	Long: `Inserts a new entry to a specified section of the next release using your preferred editor.
 
-  Honors the $EDITOR environment variable and falls back to xdg-open (linux), open (mac) or cmd /c start (windows).`,
+Honors the $EDITOR environment variable and falls back to xdg-open (linux), open (mac) or cmd /c start (windows).
+
+If you prefer using a shorter approach to using flags, there are a few shortcut commands available that
+insert a new entry into a specific section (values in [] can be ommitted):
+- add
+- fix
+- cha[nge]
+- rem[ove] (rm is also available)
+- dep[recate]
+- sec[ure]`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		changelog, filename, err := clog.ResolveChangelog()
 		if err != nil {
@@ -56,25 +85,18 @@ var insertCmd = &cobra.Command{
 			}
 		}
 
-		var response string
-		if len(args) > 0 {
-			response = strings.Join(args, " ")
-		} else {
-			response, err = editor.Prompt("- ", "<!-- Add your changes above. Don't worry, this line will be excluded from the final output. -->")
-			if err != nil {
-				return err
-			}
-		}
-
-		response = normalized(response)
-
-		newSource := changelog.AddItem(changeType, response)
-		return os.WriteFile(filename, []byte(newSource), 0o774)
+		return runInsertCmd(changelog, args, filename, changeType)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(insertCmd)
+	rootCmd.AddCommand(alias("add", nil, clog.Added))
+	rootCmd.AddCommand(alias("fix", nil, clog.Fixed))
+	rootCmd.AddCommand(alias("change", []string{"cha"}, clog.Changed))
+	rootCmd.AddCommand(alias("remove", []string{"rm", "rem"}, clog.Removed))
+	rootCmd.AddCommand(alias("deprecate", []string{"dep"}, clog.Deprecated))
+	rootCmd.AddCommand(alias("secure", []string{"sec", "security"}, clog.Security))
 
 	insertCmd.Flags().BoolVarP(&changeTypeAdded, "added", "a", false, "Adds the change to the 'Added' section.")
 	insertCmd.Flags().BoolVarP(&changeTypeChanged, "changed", "c", false, "Adds the change to the 'Changed' section.")
@@ -106,4 +128,25 @@ func normalized(response string) string {
 	}
 
 	return "- " + normalized
+}
+
+func alias(command string, aliases []string, changeType clog.ChangeType) *cobra.Command {
+	section := clog.ChangeTypeLabel(changeType)
+
+	return &cobra.Command{
+		Use:     command,
+		Aliases: aliases,
+		Short:   fmt.Sprintf(`Inserts a new entry into the "%s" section of the next release`, section),
+		Long: fmt.Sprintf(`Inserts a new entry into the "%s" section of the next release using your preferred editor.
+
+  Honors the $EDITOR environment variable and falls back to xdg-open (linux), open (mac) or cmd /c start (windows).`, section),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			changelog, filename, err := clog.ResolveChangelog()
+			if err != nil {
+				return err
+			}
+
+			return runInsertCmd(changelog, args, filename, changeType)
+		},
+	}
 }
