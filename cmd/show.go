@@ -86,7 +86,7 @@ func init() {
 	// and all subcommands, e.g.:
 	// showCmd.PersistentFlags().String("foo", "", "A help for foo")
 
-	showCmd.Flags().BoolVarP(&shouldShowPlain, "plain", "p", false, "Only print the raw contents, without terminal decorations")
+	showCmd.Flags().BoolVarP(&shouldShowPlain, "plain", "", false, "Only print the raw contents, without terminal decorations")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:

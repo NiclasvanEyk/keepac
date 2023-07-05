@@ -1,10 +1,11 @@
 package changelog
 
 import (
-	"fmt"
+	// "fmt"
 	"os"
 
 	"github.com/charmbracelet/glamour"
+	"github.com/niclasvaneyk/keepac/internal/tui"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -27,8 +28,10 @@ func Show(contents string) error {
 		return err
 	}
 
-	fmt.Print(out)
-	return nil
+	return tui.Paginate(out)
+
+	// fmt.Print(out)
+	// return nil
 }
 
 func getWordWrapLimit() int {
