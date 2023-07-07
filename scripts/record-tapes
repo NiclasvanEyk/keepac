@@ -25,7 +25,7 @@ def create_light_tapes() -> None:
     with open(light_tapes_folder.joinpath(dark_tape.name), 'w') as light_tape:
       print(f"Creating light version of {light_tape.name}...")
       light_tape.write("# This file is auto-generated and will be overridden!\n\n")
-      light_tape.write("Set Theme Github\n")
+      light_tape.write("Set Theme \"Builtin Light\"\n")
       light_tape.write(dark_tape.read_text())
 
 

@@ -4,18 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The changes describe a contrived project to demonstrate the markdown output of `keepac` / `changelog`.
 
-## [Unreleased]
-
-### Changed
-
-- A **whole new** way of doing the thing
-
 ## [1.1.0] - 2022-04-04
 
 > This release is sponsored by [our GitHub sponsors](https://github.com/sponsors/NiclasvanEyk) ❤️
 
 ### Added
 
+- A **whole new** way of doing the thing
 - A new cool syntax highlighter:
   ```rs
   // Inline code snippets!
@@ -26,8 +21,8 @@ The changes describe a contrived project to demonstrate the markdown output of `
 
 ### Fixed
 
-- A _nasty_ bug when calling `foo` without previously calling `bar`
-- A complicated deadlock which is better explained in [#123](https://github.com/NiclasvanEyk/keepac/pull/123)
+- A bug when calling `foo` without previously calling `bar`
+- A _really_ complicated deadlock which is better explained in [#123](https://github.com/NiclasvanEyk/keepac/pull/123)
 
 ## [1.0.0] - 2022-02-02
 
