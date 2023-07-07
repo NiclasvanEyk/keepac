@@ -4,5 +4,6 @@
 Require changelog
 
 Set Width 1200
-Set Height 1200
+Set Height 800
 Set FontSize 26
+
