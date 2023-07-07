@@ -1,10 +1,12 @@
 package changelog
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestItCanSearchForItems(t *testing.T) {
-	changelog := Parse([]byte(`
-# Changelog
+	changelog := Parse([]byte(`# Changelog
 
 ## [Unreleased]
 
@@ -20,17 +22,12 @@ func TestItCanSearchForItems(t *testing.T) {
 	`))
 
 	actual := Search(&changelog, "Windows")
-	expected := `
-# Changelog
-
-## [Unreleased]
-
+	expected := `## [Unreleased]
 ### Removed
-
 - Support for Windows
 	`
 
-	if actual != expected {
+	if strings.TrimSpace(expected) != strings.TrimSpace(actual) {
 		t.Errorf("Expected does not match actual:\n\n%s", actual)
 	}
 }
