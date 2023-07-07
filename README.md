@@ -37,7 +37,37 @@ go build -o changelog
 
 ## Usage
 
-### `changelog init`
+### Reading
+
+#### `changelog find`
+
+Finds the nearest `CHANGELOG.md` relative to the current working directory and prints it to the console.
+If none is found, keepac will recursively walk upwards the directory tree until it either reaches the root or finds one.
+
+> Note: "The nearest changelog" will be used throughout this readme to refer to this upward search for `CHANGELOG.md` files.
+
+While quite basic, this command can be used in conjunction with other tools to quickly build custom functionality.
+
+#### `changelog show`
+
+Renders the nearest changelog right inside your terminal using [charmbracelet/glamour](https://github.com/charmbracelet/glamour).
+
+> Since keepac uses `glamour` to render markdown, you can theme its output by setting the `GLAMOUR_STYLE` environment variable to one of the [available styles](https://github.com/charmbracelet/glamour/tree/master/styles/gallery) or [create your own](https://github.com/charmbracelet/glamour/tree/master/styles).
+
+#### `changelog search`
+
+Searches for changes matching the given search query.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/search.dark.gif">
+  <img src="https://niclasvaneyk.github.io/keepac/search.light.gif" loading="lazy">
+</picture>
+
+Matches are displayed with contextual information, such as the version the change was released in and its type of change.
+
+### Writing
+
+#### `changelog init`
 
 Creates an empty `CHANGELOG.md` file in the current directory which looks something like this:
 
@@ -54,39 +84,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 ```
 
-### `changelog find`
-
-Finds the nearest `CHANGELOG.md` relative to the current working directory and prints it to the console.
-If none is found, keepac will recursively walk upwards the directory tree until it either reaches the root or finds one.
-
-> Note: "The nearest changelog" will be used throughout this readme to refer to this upward search for `CHANGELOG.md` files.
-
-While quite basic, this command can be used in conjunction with other tools to quickly build custom functionality.
-
-### `changelog show`
-
-Renders the nearest changelog right inside your terminal using [charmbracelet/glamour](https://github.com/charmbracelet/glamour).
-
-> Since keepac uses `glamour` to render markdown, you can theme its output by setting the `GLAMOUR_STYLE` environment variable to one of the [available styles](https://github.com/charmbracelet/glamour/tree/master/styles/gallery) or [create your own](https://github.com/charmbracelet/glamour/tree/master/styles).
-
-### `changelog search`
-
-Searches for changes matching the given search query.
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/search.dark.gif">
-  <img src="https://niclasvaneyk.github.io/keepac/search.light.gif" loading="lazy">
-</picture>
-
-Matches are displayed with contextual information, such as the version the change was released in and its type of change.
-
-### `changelog edit`
+#### `changelog edit`
 
 Opens the nearest changelog inside your `$EDITOR`.
 
 If you did not set the `$EDITOR` environment variable, commands like `xdg-open` or `open` are used as a fallback.
 
-### `changelog insert`
+#### `changelog insert`
 
 Adds a new entry to one of your sections in the changelog.
 
@@ -108,7 +112,7 @@ changelog insert
 will open up either your `$EDITOR` or an inline one if the `$EDITOR` environment variable is not set.
 Describe your changes, close the editor and an entry .
 
-### `changelog release`
+#### `changelog release`
 
 Turns the `[Unreleased]` section into a proper versioned release.
 
@@ -116,7 +120,7 @@ You may pass a version adhering to SemVer or use the `--major`, `--minor`, `--pa
 Note that there must be prior releases in order to use these!
 By default the current date is used as the realease date, but you may override this using the `--date` option.
 
-### `changelog yank <version>`
+#### `changelog yank <version>`
 
 Marks the specified released as yanked`. To cite [Keep a Changelog](https://keepachangelog.com/en/1.1.0/#yanked):
 
