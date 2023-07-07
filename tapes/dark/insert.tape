@@ -1,4 +1,4 @@
-Require changelog
+Source ../config.tape
 
 Hide
 # Create new file

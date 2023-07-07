@@ -1,4 +1,4 @@
-Require changelog
+Source ../partials/config.tape
 
 Type "changelog find"
 Enter

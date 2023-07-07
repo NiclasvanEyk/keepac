@@ -1,7 +1,7 @@
-Require changelog
+Source ../partials/config.tape
 Require wget
 
-Set Width 2400
+Set Width 1500
 Set Height 800
 
 Hide
