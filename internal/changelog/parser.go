@@ -244,6 +244,7 @@ func Parse(source []byte) Changelog {
 		if node.Kind() == ast.KindListItem && currentRelease != nil && len(currentRelease.Sections) > 0 {
 			change := Item{Bounds: ComputeBounds(node)}
 			section := &currentRelease.Sections[len(currentRelease.Sections)-1]
+			section.Bounds.Stop = change.Bounds.Stop
 			section.Items = append(section.Items, change)
 		}
 
