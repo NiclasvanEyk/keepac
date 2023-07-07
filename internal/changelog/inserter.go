@@ -105,8 +105,13 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 
 	// Now the only thing left is the case where we need to append the new
 	// section at the very end of the [Unreleased] section. Another way of
-	// framing this is inserting it before the latest release, which is
-	// guaranteed to exist, since we handled this edge case earlier.
+	// framing this is inserting it before the latest release. First we handle
+	// the case where this one does not exist...
+	if len(changelog.Releases.Past) == 0 {
+		return changelog.Stop(), Padding{1, 0}
+	}
+
+	// ... and otherwise we insert it before the latest release.
 	return changelog.Releases.Past[0].Bounds.Start, Padding{Before: 0, After: 2}
 }
 

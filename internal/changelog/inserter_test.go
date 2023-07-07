@@ -256,7 +256,6 @@ func TestInsertsAfterEmptyButExistingUnreleasedSectionWithoutAnyPastReleases(t *
 
 ## [Unreleased]
 
-
 ### Added
 
 - Something`
