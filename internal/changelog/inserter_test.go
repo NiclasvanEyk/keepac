@@ -82,7 +82,7 @@ func TestAddToExistingSectionInNextRelease(t *testing.T) {
 	scenario(t, source, changeType, addition, expected)
 }
 
-func DeactivatedTestAppendToExistingSectionInNextReleaseWithoutPastReleases(t *testing.T) {
+func TestAppendToExistingSectionInNextReleaseWithoutPastReleases(t *testing.T) {
 	source := `# Changelog
 
 ## [Unreleased]
@@ -108,7 +108,7 @@ func DeactivatedTestAppendToExistingSectionInNextReleaseWithoutPastReleases(t *t
 	scenario(t, source, changeType, addition, expected)
 }
 
-func DeactivatedTestAddToNewSectionInNextReleaseWithoutPastReleases(t *testing.T) {
+func TestAddToNewSectionInNextReleaseWithoutPastReleases(t *testing.T) {
 	source := `# Changelog
 
 ## [Unreleased]
@@ -263,7 +263,7 @@ func TestInsertsAfterEmptyButExistingUnreleasedSectionWithoutAnyPastReleases(t *
 	scenario(t, source, changeType, addition, expected)
 }
 
-func DeactivatedTestInsertsCorrectlyRegressionTest(t *testing.T) {
+func TestInsertsCorrectlyRegressionTest(t *testing.T) {
 	source := `# Changelog
 
 ## [Unreleased]
