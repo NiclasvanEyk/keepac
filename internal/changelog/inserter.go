@@ -2,6 +2,7 @@ package changelog
 
 import (
 	"strings"
+	"unicode"
 )
 
 func (changelog *Changelog) AddItem(changeType ChangeType, contents string) string {
@@ -22,26 +23,51 @@ func (changelog *Changelog) AddItem(changeType ChangeType, contents string) stri
 
 	insertionPoint, padding := determineInsertionPoint(changeType, changelog)
 
-	return changelog.source[:insertionPoint] + padding.ApplyTo(newContent) + changelog.source[insertionPoint:]
+	return padding.Join(
+		changelog.source[:insertionPoint],
+		newContent,
+		changelog.source[insertionPoint:],
+	)
 }
 
-type Padding struct {
+type NewLines struct {
 	Before int
 	After  int
 }
 
-func (p *Padding) ApplyTo(subject string) string {
-	return strings.Repeat("\n", p.Before) + subject + strings.Repeat("\n", p.After)
+func ensureNewlinesBetween(lines int, left string, right string) string {
+	leftSanitized := strings.TrimRightFunc(left, unicode.IsSpace)
+	rightSanatized := strings.TrimLeftFunc(right, unicode.IsSpace)
+
+	return leftSanitized + strings.Repeat("\n", lines) + rightSanatized
+}
+
+func (p *NewLines) Join(before string, subject string, after string) string {
+	finalString := ""
+
+	if p.Before > 0 {
+		finalString = ensureNewlinesBetween(p.Before, before, subject)
+	} else {
+		finalString = before + subject
+	}
+
+	if p.After > 0 {
+		finalString = ensureNewlinesBetween(p.After, finalString, after)
+	} else {
+		finalString = finalString + after
+	}
+
+	return finalString
 }
 
 // Returns the index at which to insert and the amount of Padding
-func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, Padding) {
+func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, NewLines) {
 	nextRelease := changelog.Releases.Next
 	if nextRelease == nil {
 		if len(changelog.Releases.Past) == 0 {
 			// We have an empty changelog with just the title:
 			// # Changelog                  <-- Add here
-			return changelog.Stop(), Padding{Before: 2, After: 0}
+			return changelog.Stop(), NewLines{Before: 2, After: 0}
 		}
 
 		// We have some releases, but no next one:
@@ -50,7 +76,7 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 		// ## [1.1.0] - 2020-01-01        <-- Add before this line
 		//
 		// ### Added
-		return changelog.Releases.Past[0].Bounds.Start, Padding{Before: 0, After: 2}
+		return changelog.Releases.Past[0].Bounds.Start, NewLines{Before: 0, After: 2}
 	}
 
 	// At this point we can be sure that we need to insert somewhere inside the
@@ -67,7 +93,7 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 	// ## [1.1.0] - 2020-01-01
 	existingSection := nextRelease.FindSection(changeType)
 	if existingSection != nil {
-		return existingSection.Bounds.Stop, Padding{Before: 1, After: 0}
+		return existingSection.Bounds.Stop, NewLines{Before: 1, After: 0}
 	}
 
 	// Now we know, that the section does not exist yet.
@@ -80,11 +106,11 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 		//
 		// ## [Unreleased]               <-- Add after this line
 		if len(changelog.Releases.Past) == 0 {
-			return changelog.Stop(), Padding{Before: 1, After: 0} // Only 1 Padding here, since it is reasonable to assume that the file already has a \n at the end
+			return changelog.Stop(), NewLines{Before: 2, After: 0}
 		}
 
 		latestRelease := changelog.Releases.Past[len(changelog.Releases.Past)-1]
-		return latestRelease.Bounds.Start, Padding{Before: 0, After: 2}
+		return latestRelease.Bounds.Start, NewLines{Before: 0, After: 2}
 	}
 
 	// Now with all other edge cases handled we can shift our focus to adding a
@@ -99,7 +125,7 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 	// section that the section to insert would preceed.
 	for _, section := range nextRelease.Sections {
 		if int(changeType) < int(section.Type) {
-			return section.Bounds.Start, Padding{Before: 0, After: 2}
+			return section.Bounds.Start, NewLines{Before: 0, After: 2}
 		}
 	}
 
@@ -108,11 +134,11 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 	// framing this is inserting it before the latest release. First we handle
 	// the case where this one does not exist...
 	if len(changelog.Releases.Past) == 0 {
-		return changelog.Stop(), Padding{1, 0}
+		return changelog.Stop(), NewLines{2, 0}
 	}
 
 	// ... and otherwise we insert it before the latest release.
-	return changelog.Releases.Past[0].Bounds.Start, Padding{Before: 0, After: 2}
+	return changelog.Releases.Past[0].Bounds.Start, NewLines{Before: 0, After: 2}
 }
 
 func (changelog *Changelog) ReplacedWithinBounds(bounds Bounds, replacement string) string {

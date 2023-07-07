@@ -82,7 +82,7 @@ func TestAddToExistingSectionInNextRelease(t *testing.T) {
 	scenario(t, source, changeType, addition, expected)
 }
 
-func DeactivatedTestAppendToExistingSectionInNextReleaseWithoutPastReleases(t *testing.T) {
+func TestAppendToExistingSectionInNextReleaseWithoutPastReleases(t *testing.T) {
 	source := `# Changelog
 
 ## [Unreleased]
@@ -108,7 +108,7 @@ func DeactivatedTestAppendToExistingSectionInNextReleaseWithoutPastReleases(t *t
 	scenario(t, source, changeType, addition, expected)
 }
 
-func DeactivatedTestAddToNewSectionInNextReleaseWithoutPastReleases(t *testing.T) {
+func TestAddToNewSectionInNextReleaseWithoutPastReleases(t *testing.T) {
 	source := `# Changelog
 
 ## [Unreleased]
@@ -125,6 +125,9 @@ func DeactivatedTestAddToNewSectionInNextReleaseWithoutPastReleases(t *testing.T
 ### Added
 
 - Something
+
+### Changed
+
 - Another New Thing`
 
 	scenario(t, source, changeType, addition, expected)
@@ -263,7 +266,7 @@ func TestInsertsAfterEmptyButExistingUnreleasedSectionWithoutAnyPastReleases(t *
 	scenario(t, source, changeType, addition, expected)
 }
 
-func DeactivatedTestInsertsCorrectlyRegressionTest(t *testing.T) {
+func TestInsertsCorrectlyRegressionTest(t *testing.T) {
 	source := `# Changelog
 
 ## [Unreleased]
@@ -271,15 +274,6 @@ func DeactivatedTestInsertsCorrectlyRegressionTest(t *testing.T) {
 ### Added
 
 - The initial version
-- new entry
-- a really cool new feature
-- a really cool new feature
-- a really cool new feature
-- something
-- Something Why does this not get inserted at the end?
-- Something This is unexpected
-- Something really good
-- foo bar foo
 - Something`
 
 	addition := "- New item at the end"
@@ -290,15 +284,6 @@ func DeactivatedTestInsertsCorrectlyRegressionTest(t *testing.T) {
 ### Added
 
 - The initial version
-- new entry
-- a really cool new feature
-- a really cool new feature
-- a really cool new feature
-- something
-- Something Why does this not get inserted at the end?
-- Something This is unexpected
-- Something really good
-- foo bar foo
 - Something
 - New item at the end`
 
