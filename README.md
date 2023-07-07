@@ -127,7 +127,7 @@ By default the current date is used as the realease date, but you may override t
 
 #### `changelog yank <version>`
 
-Marks the specified released as yanked`. To cite [Keep a Changelog](https://keepachangelog.com/en/1.1.0/#yanked):
+Marks the specified released as yanked. To cite [Keep a Changelog](https://keepachangelog.com/en/1.1.0/#yanked):
 
 > Yanked releases are versions that had to be pulled because of a serious bug or security issue. Often these versions don't even appear in change logs. They should. This is how you should display them:
 >
