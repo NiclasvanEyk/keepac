@@ -6,7 +6,10 @@ Enter
 Sleep 250ms
 Show
 
-
+Type "changelog show"
+Sleep 1000ms
+Enter
+Sleep 15000ms
 
 Hide
 Type "rm CHANGELOG.md"

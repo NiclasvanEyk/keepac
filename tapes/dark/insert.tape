@@ -1,4 +1,4 @@
-Source ../config.tape
+Source ../partials/config.tape
 
 Hide
 # Create new file
