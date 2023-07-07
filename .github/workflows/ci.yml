@@ -19,6 +19,8 @@ jobs:
         run: go mod download
       - name: Build
         run: go build ./...
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
       - name: Test
         run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload coverage to Codecov

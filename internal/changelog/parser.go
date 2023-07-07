@@ -1,6 +1,7 @@
 package changelog
 
 import (
+	"fmt"
 	"math"
 	"regexp"
 	"strings"
@@ -175,7 +176,7 @@ func Parse(source []byte) Changelog {
 	currentReleaseIsNextRelease := false
 	var nextRelease *NextRelease
 
-	ast.Walk(root, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
+	err := ast.Walk(root, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
 		if !entering {
 			return ast.WalkContinue, nil
 		}
@@ -250,6 +251,10 @@ func Parse(source []byte) Changelog {
 
 		return ast.WalkContinue, nil
 	})
+
+	if err != nil {
+		fmt.Printf("Warning: %s\n", err.Error())
+	}
 
 	if currentRelease != nil {
 		if currentReleaseIsNextRelease {
