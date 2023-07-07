@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	titleStyle        = lipgloss.NewStyle().MarginLeft(2).MarginTop(1)
+	choiceTitleStyle  = lipgloss.NewStyle().MarginLeft(2).MarginTop(1)
 	itemStyle         = lipgloss.NewStyle().PaddingLeft(4)
 	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Bold(true)
 )
@@ -45,16 +45,16 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 	fmt.Fprint(w, fn(i.value))
 }
 
-type model struct {
+type choiceModel struct {
 	list     list.Model
 	onSelect func(item)
 }
 
-func (m model) Init() tea.Cmd {
+func (m choiceModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m choiceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.list.SetWidth(msg.Width)
@@ -79,7 +79,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m model) View() string {
+func (m choiceModel) View() string {
 	return m.list.View()
 }
 
@@ -99,11 +99,11 @@ func Choice(title string, options []string) (string, int) {
 	l.SetShowHelp(false)
 
 	l.Title = title
-	l.Styles.Title = titleStyle
+	l.Styles.Title = choiceTitleStyle
 
 	choice := ""
 	index := -1
-	m := model{list: l, onSelect: func(i item) {
+	m := choiceModel{list: l, onSelect: func(i item) {
 		choice = i.value
 		index = i.index
 	}}
