@@ -42,6 +42,12 @@ go build -o changelog
 #### `changelog find`
 
 Finds the nearest `CHANGELOG.md` relative to the current working directory and prints it to the console.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://niclasvaneyk.github.io/keepac/find.dark.gif">
+  <img src="https://niclasvaneyk.github.io/keepac/find.light.gif" loading="lazy">
+</picture>
+
 If none is found, keepac will recursively walk upwards the directory tree until it either reaches the root or finds one.
 
 > Note: "The nearest changelog" will be used throughout this readme to refer to this upward search for `CHANGELOG.md` files.

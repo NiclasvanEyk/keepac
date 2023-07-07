@@ -40,4 +40,5 @@ Sleep 10000ms
 
 Hide
 Type "rm CHANGELOG.md"
+Enter
 
