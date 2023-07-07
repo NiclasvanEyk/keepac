@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/glamour"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 func (changelog *Changelog) ContentWithin(bounds *Bounds) string {
@@ -33,7 +33,7 @@ func Show(contents string) error {
 
 func getWordWrapLimit() int {
 	current := int(os.Stdin.Fd())
-	width, _, err := terminal.GetSize(current)
+	width, _, err := term.GetSize(current)
 	if err != nil {
 		return 80
 	}
