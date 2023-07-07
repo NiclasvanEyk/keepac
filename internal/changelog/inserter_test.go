@@ -263,3 +263,45 @@ func TestInsertsAfterEmptyButExistingUnreleasedSectionWithoutAnyPastReleases(t *
 
 	scenario(t, source, changeType, addition, expected)
 }
+
+func TestInsertsCorrectlyRegressionTest(t *testing.T) {
+	source := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- The initial version
+- new entry
+- a really cool new feature
+- a really cool new feature
+- a really cool new feature
+- something
+- Something Why does this not get inserted at the end?
+- Something This is unexpected
+- Something really good
+- foo bar foo
+- Something`
+
+	addition := "- New item at the end"
+	expected := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- The initial version
+- new entry
+- a really cool new feature
+- a really cool new feature
+- a really cool new feature
+- something
+- Something Why does this not get inserted at the end?
+- Something This is unexpected
+- Something really good
+- foo bar foo
+- Something
+- New item at the end`
+
+	scenario(t, source, Added, addition, expected)
+}

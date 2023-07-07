@@ -4,82 +4,6 @@ import (
 	"strings"
 )
 
-// func (changelog *Changelog) ensureNextReleaseSectionExists() *NextRelease {
-// 	if changelog.Releases.Next != nil {
-// 		return changelog.Releases.Next
-// 	}
-//
-// 	releases := changelog.Releases.Past
-// 	if len(releases) == 0 {
-// 		// The changelog is completely empty, so we'll just insert at the end of the
-// 		// file
-// 		changelog.InsertAt(len(changelog.source), "\n\n## [Unreleased]\n\n\n")
-//
-// 		return &NextRelease{}
-// 	}
-//
-// 	// There are past releases, but not yet a next one.
-// 	changelog.InsertAt(releases[0].Begin, "## [Unreleased]\n\n\n")
-//
-// 	// TODO: The NextRelease also should have bounds
-// 	return &NextRelease{}
-// }
-
-// We need to know a few key points for insertion:
-// # Changelog
-//
-// ## [Next]
-//
-// ### Added
-//
-// - Something
-//
-// ### Removed                        <-- Also needed to prepend new sections
-//
-// - First
-// - Second
-// - Third                            <-- Most sections can be appended to, so we need this information
-//
-// ## [1.0.0] - 2000-01-01            <-- This is needed, so that we can prepend new sections
-//
-// ### Added
-//
-// - The initial version
-
-// func (changelog *Changelog) InsertAt(insertionPoint int, contents string) {
-// 	source := changelog.source
-// 	newSource := source[:insertionPoint] + contents + source[insertionPoint:]
-// 	changelog.source = newSource
-//
-// 	addedContentLength := len(contents)
-//
-// 	nextRelease := changelog.Releases.Next
-//
-// 	sections := make([]*Section, 0)
-//
-// 	if nextRelease != nil {
-// 		for _, section := range nextRelease.Sections {
-// 			sections = append(sections, &section)
-// 		}
-// 	}
-//
-// 	for _, release := range changelog.Releases.Past {
-// 		for _, section := range release.Sections {
-// 			sections = append(sections, &section)
-// 		}
-// 	}
-//
-// 	for _, section := range sections {
-// 		if section.Bounds.Start >= insertionPoint {
-// 			section.Bounds.Start += addedContentLength
-// 		}
-//
-// 		if section.Bounds.Stop >= insertionPoint {
-// 			section.Bounds.Stop += addedContentLength
-// 		}
-// 	}
-// }
-
 func (changelog *Changelog) AddItem(changeType ChangeType, contents string) string {
 	parts := make([]string, 0)
 
@@ -117,7 +41,7 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 		if len(changelog.Releases.Past) == 0 {
 			// We have an empty changelog with just the title:
 			// # Changelog                  <-- Add here
-			return changelog.Stop(), Padding{Before: 1, After: 0} // Only 1 Padding here, since it is reasonable to assume that the file already has a \n at the end
+			return changelog.Stop(), Padding{Before: 2, After: 0}
 		}
 
 		// We have some releases, but no next one:
