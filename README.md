@@ -9,17 +9,10 @@ An opiniated way of managing changelogs adhering to the [keepachangelog](https:/
 
 ## Installation
 
-### Pre-built Binaries
+### Homebrew
 
-This section contains a few copy-pastable gists that should download and install the latest version of the `changelog` binary to `/usr/local/bin`. If your arch/OS is not listed here, you may be able to download it from the [GitHub Releases Page](https://github.com/NiclasvanEyk/keepac/releases).
-
-#### Linux
-
-```shell
-curl -sL https://github.com/NiclasvanEyk/keepac/releases/latest/download/keepac_Linux_x86_64.tar.gz | tar -xz && mv changelog /usr/local/bin/ && changelog --help
-```
-
-### MacOS - Homebrew
+The preferred method, since you receive updates via `brew update` and it works on MacOS, Linux and WSL.
+Shell completions are installed automatically, so tabbing for command or argument completions just works.
 
 ```shell
 brew install niclasvaneyk/keepac/keepac
@@ -27,15 +20,87 @@ brew install niclasvaneyk/keepac/keepac
 
 > Note: You likely need to open a new shell instance after the installation succeeds in order for the completions to work properly
 
-### From Source
+### Other
 
-If you are not able to download and install a pre-built version, you may build one yourself by cloning this repository and running
+Pre-built binaries and bundles can be downloaded from the [GitHub Releases Page](https://github.com/NiclasvanEyk/keepac/releases).
+It contains `.deb`, `.rpm`, `.exe` and other formats for a variety of CPU architectures.
+These do not get automatic updates and depending on the format you may need to install the shell completions yourself.
 
-```shell
-go build -o changelog
-```
+If you are not able to download and install a pre-built version, you may build one yourself by cloning this repository and running `go build -o changelog`.
 
 ## Usage
+
+Writing changelogs is not rocket science, but the process definitely feels more manual than other workflows.
+
+1. You need to find the `CHANGELOG.md` in your project and open it in your editor:
+
+   ```markdown
+   # Changelog
+
+   ## [2.3.4] - 2023-06-06
+
+   ...
+   ```
+
+2. You then create a new section for the next release
+
+   ```diff
+   # Changelog
+
+   + ## [Unreleased]
+
+   ## [2.3.4] - 2023-06-06
+
+   ...
+   ```
+
+3. another one for bug fixes
+
+   ```diff
+   # Changelog
+
+   ## [Unreleased]
+
+   + ### Fixed
+
+   ## [2.3.4] - 2023-06-06
+
+   ...
+   ```
+
+4. and finally document your fix:
+
+   ```diff
+   # Changelog
+
+   ## [Unreleased]
+
+   ### Fixed
+
+   + - A bug that lead to X when doing Y
+
+   ## [2.3.4] - 2023-06-06
+
+   ...
+   ```
+
+5. then you save the document, close your editor and you are done.
+
+Presenting this as a list makes it look like more effort than it actually is, but each step requires tiny ammounts of mental effort and could prevent someone from keeping a changelog.
+
+With `keepac` you could have done all of this by running
+
+```shell
+changelog fixed "A bug that lead to X when doing Y"
+```
+
+inside your terminal, similar to how you would do it with `git`.
+
+Missing sections are added on-demand and sections are always added in the same order.
+It can be run from anywhere inside your project, since it recursively searches upward the directory tree for a `CHANGELOG.md` file.
+Less thinking _how_ to do something and more focus on the _what_.
+
+## Reference
 
 ### Reading
 
