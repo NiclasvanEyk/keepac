@@ -2,7 +2,7 @@ Source ../partials/config.tape
 Require tree
 
 Hide
-Type "mkdir init-demo"
+Type "mkdir init-demo && cd init-demo"
 Sleep 100ms
 Enter
 Type "changelog init"
