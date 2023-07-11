@@ -74,6 +74,21 @@ const (
 	Unknown
 )
 
+func KnownChangeTypes() []ChangeType {
+	return []ChangeType{
+		Added,
+		Changed,
+		Deprecated,
+		Fixed,
+		Removed,
+		Security,
+	}
+}
+
+func LastChangeType() ChangeType {
+	return Security
+}
+
 func ChangeTypeLabel(changeType ChangeType) string {
 	switch changeType {
 	case Added:
