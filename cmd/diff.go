@@ -52,5 +52,5 @@ func init() {
 	// is called directly, e.g.:
 	// diffCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	diffCmd.Flags().BoolVarP(&merge, "merged", "", false, "Merge sections into a single continuous")
-	diffCmd.Flags().BoolVarP(&prefix, "prefix", "", false, "When --merge is passed, prefix each change with its version number")
+	diffCmd.Flags().BoolVarP(&prefix, "prefixed", "", false, "When --merged is passed, prefix each change with its version number")
 }
