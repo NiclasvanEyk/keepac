@@ -11,135 +11,109 @@ import (
 	"github.com/yuin/goldmark/text"
 )
 
-type Changelog struct {
-	source   string
-	Title    string
-	Releases Releases
-}
+func Parse(source []byte) Changelog {
+	reader := text.NewReader(source)
+	parser := goldmark.DefaultParser()
+	root := parser.Parse(reader)
 
-// Returns the end index of the changelog
-func (changelog *Changelog) Stop() int {
-	return len(changelog.source)
-}
+	run := parserRun{
+		title:                       "",
+		currentRelease:              nil,
+		currentReleaseIsNextRelease: false,
+		nextRelease:                 nil,
+		source:                      source,
+	}
 
-type NextRelease struct {
-	HeadlineBounds Bounds
-	Bounds         Bounds
-	Sections       []Section
-}
-
-type Releases struct {
-	Next *NextRelease
-	Past []Release
-}
-
-func (next *NextRelease) FindSection(changeType ChangeType) *Section {
-	for _, section := range next.Sections {
-		if section.Type == changeType {
-			return &section
+	err := ast.Walk(root, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
+		if !entering {
+			return ast.WalkContinue, nil
 		}
+
+		if node.Kind() == ast.KindHeading {
+			heading := node.(*ast.Heading)
+
+			if run.title == "" && heading.Level == 1 {
+				run.handleTitle(heading)
+			}
+
+			if heading.Level == 2 {
+				run.handleNewRelease(heading)
+			}
+
+			if heading.Level == 3 {
+				run.handleNewReleaseSection(heading)
+			}
+		}
+
+		// The following operations require a section of a release to be present
+		if run.currentSection() == nil {
+			return ast.WalkContinue, nil
+		}
+
+		if node.Kind() == ast.KindList {
+			run.handleListOfChanges(node.(*ast.List))
+		}
+
+		if node.Kind() == ast.KindListItem {
+			run.handleListOfChangesItem(node.(*ast.ListItem))
+		}
+
+		return ast.WalkContinue, nil
+	})
+
+	if err != nil {
+		fmt.Printf("Warning: %s\n", err.Error())
 	}
 
-	return nil
+	run.finalizeCurrentRelease(len(source))
+
+	changelog := Changelog{
+		Title:  run.title,
+		source: string(source),
+		Releases: Releases{
+			Next: run.nextRelease,
+			Past: run.releases,
+		},
+	}
+
+	return changelog
 }
 
-type Release struct {
-	Sections []Section
-	Date     string
-	Yanked   bool
-	Version  string
-
-	HeadlineBounds Bounds
-	Bounds         Bounds
+type parserRun struct {
+	source                      []byte
+	title                       string
+	releases                    []Release
+	currentRelease              *Release
+	currentReleaseIsNextRelease bool
+	nextRelease                 *NextRelease
 }
 
-func NewRelease(version string, date string) Release {
-	return Release{
-		Version:  version,
-		Date:     date,
-		Yanked:   false,
-		Sections: make([]Section, 0),
+func (run *parserRun) currentSection() *Section {
+	if run.currentRelease == nil {
+		return nil
+	}
+
+	if len(run.currentRelease.Sections) < 1 {
+		return nil
+	}
+
+	return &run.currentRelease.Sections[len(run.currentRelease.Sections)-1]
+}
+
+func (run *parserRun) finalizeCurrentRelease(stop int) {
+	if run.currentRelease == nil {
+		return
+	}
+
+	if run.currentReleaseIsNextRelease {
+		run.finalizeCurrentAsNextRelease(stop)
+	} else {
+		run.currentRelease.Bounds.Stop = stop
+		run.finalizeCurrentAsPastRelease()
 	}
 }
 
-type ChangeType int64
-
-const (
-	Added ChangeType = iota
-	Changed
-	Deprecated
-	Fixed
-	Removed
-	Security
-	Unknown
-)
-
-func ChangeTypeLabel(changeType ChangeType) string {
-	switch changeType {
-	case Added:
-		return "Added"
-	case Changed:
-		return "Changed"
-	case Deprecated:
-		return "Deprecated"
-	case Fixed:
-		return "Fixed"
-	case Removed:
-		return "Removed"
-	case Security:
-		return "Security"
-	}
-	return "Unknown"
-}
-
-func ParseChangeType(name string) ChangeType {
-	switch name {
-	case "Added":
-		return Added
-	case "Changed":
-		return Changed
-	case "Deprecated":
-		return Deprecated
-	case "Fixed":
-		return Fixed
-	case "Removed":
-		return Removed
-	case "Security":
-		return Security
-	}
-	return Unknown
-}
-
-type Bounds struct {
-	Start int
-	Stop  int
-}
-
-type Section struct {
-	Type   ChangeType
-	Items  []Item
-	Bounds Bounds
-}
-
-type Item struct {
-	Bounds Bounds
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func ComputeBounds(node ast.Node) Bounds {
+func computeBounds(node ast.Node) Bounds {
 	start := math.MaxInt
 	stop := -1
 
@@ -160,142 +134,89 @@ func ComputeBounds(node ast.Node) Bounds {
 	return Bounds{Start: start, Stop: stop}
 }
 
-func EmptyBounds() Bounds {
-	return Bounds{Start: -1, Stop: -1}
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
-func Parse(source []byte) Changelog {
-	reader := text.NewReader(source)
-	parser := goldmark.DefaultParser()
-	root := parser.Parse(reader)
-
-	releases := make([]Release, 0)
-
-	title := ""
-	var currentRelease *Release
-	currentReleaseIsNextRelease := false
-	var nextRelease *NextRelease
-
-	err := ast.Walk(root, func(node ast.Node, entering bool) (ast.WalkStatus, error) {
-		if !entering {
-			return ast.WalkContinue, nil
-		}
-
-		if node.Kind() == ast.KindHeading {
-			heading := node.(*ast.Heading)
-
-			if title == "" && heading.Level == 1 {
-				title = string(heading.Text(source))
-			}
-
-			if heading.Level == 2 {
-				headingBounds := ComputeBounds(heading)
-				if currentRelease != nil {
-					stop := headingBounds.Start - 3
-					if currentReleaseIsNextRelease {
-						nextRelease = &NextRelease{
-							Bounds: Bounds{
-								Start: currentRelease.HeadlineBounds.Start - 3,
-								Stop:  stop,
-							},
-							HeadlineBounds: currentRelease.HeadlineBounds,
-							Sections:       currentRelease.Sections,
-						}
-					} else {
-						currentRelease.Bounds.Stop = stop
-						releases = append(releases, *currentRelease)
-					}
-				}
-
-				line := string(heading.Text(source))
-				r := NewRelease(parseVersion(line), parseDate(line))
-				r.Yanked = strings.Contains(line, "[YANKED]")
-				r.HeadlineBounds = headingBounds
-				r.Bounds = Bounds{
-					// we subtract the length of "## " to achieve better insertion points
-					Start: r.HeadlineBounds.Start - 3,
-					Stop:  r.HeadlineBounds.Stop, // This will be incremented later
-				}
-				currentRelease = &r
-				text := string(heading.Text(source))
-				currentReleaseIsNextRelease = text == "[Unreleased]" || text == "Unreleased"
-			}
-
-			if heading.Level == 3 && entering {
-				bounds := ComputeBounds(heading)
-				bounds.Start = bounds.Start - 4 // we subtract the length of "### " to achieve better insertion points
-				section := Section{
-					Type:   ParseChangeType(string(heading.Text(source))),
-					Items:  make([]Item, 0),
-					Bounds: bounds,
-				}
-				(*currentRelease).Sections = append((*currentRelease).Sections, section)
-			}
-		}
-
-		// We assume that the last list in the section defines its bounds which we
-		// can use to add new changes later
-		beginsListOfChanges := node.Kind() == ast.KindList && len(currentRelease.Sections) > 0
-		if beginsListOfChanges {
-			list := node.(*ast.List)
-			bounds := ComputeBounds(list)
-			currentRelease.Sections[len(currentRelease.Sections)-1].Bounds.Stop = bounds.Stop
-		}
-
-		if node.Kind() == ast.KindListItem && currentRelease != nil && len(currentRelease.Sections) > 0 {
-			change := Item{Bounds: ComputeBounds(node)}
-			section := &currentRelease.Sections[len(currentRelease.Sections)-1]
-			section.Bounds.Stop = change.Bounds.Stop
-			section.Items = append(section.Items, change)
-		}
-
-		return ast.WalkContinue, nil
-	})
-
-	if err != nil {
-		fmt.Printf("Warning: %s\n", err.Error())
+func max(a, b int) int {
+	if a > b {
+		return a
 	}
+	return b
+}
 
-	if currentRelease != nil {
-		if currentReleaseIsNextRelease {
-			stop := len(source)
-			if len(releases) > 0 {
-				stop = releases[len(releases)-1].Bounds.Start - 1
-			}
-
-			nextRelease = &NextRelease{
-				HeadlineBounds: currentRelease.HeadlineBounds,
-				Bounds: Bounds{
-					Start: currentRelease.HeadlineBounds.Start - 3,
-					Stop:  stop,
-				},
-				Sections: currentRelease.Sections,
-			}
-		} else {
-			releases = append(releases, *currentRelease)
-		}
-	}
-
-	changelog := Changelog{
-		Title:  title,
-		source: string(source),
-		Releases: Releases{
-			Next: nextRelease,
-			Past: releases,
+func (run *parserRun) finalizeCurrentAsNextRelease(stop int) {
+	run.nextRelease = &NextRelease{
+		Bounds: Bounds{
+			Start: run.currentRelease.HeadlineBounds.Start - 3,
+			Stop:  stop,
 		},
+		HeadlineBounds: run.currentRelease.HeadlineBounds,
+		Sections:       run.currentRelease.Sections,
 	}
-
-	return changelog
+	run.currentRelease = nil
 }
 
-func HasChanges(sections *([]Section)) bool {
-	for _, section := range *sections {
-		for range section.Items {
-			return true
-		}
+func (run *parserRun) finalizeCurrentAsPastRelease() {
+	run.releases = append(run.releases, *run.currentRelease)
+	run.currentRelease = nil
+}
+
+// Sets the title
+func (run *parserRun) handleTitle(heading *ast.Heading) {
+	run.title = string(heading.Text(run.source))
+}
+
+// Finalizes the current release and prepares a new one
+func (run *parserRun) handleNewRelease(heading *ast.Heading) {
+	headingBounds := computeBounds(heading)
+
+	// Close current release if necessary
+	run.finalizeCurrentRelease(headingBounds.Start - 3)
+
+	// Prepare a new one
+	line := string(heading.Text(run.source))
+	r := NewRelease(parseVersion(line), parseDate(line))
+	r.Yanked = strings.Contains(line, "[YANKED]")
+	r.HeadlineBounds = headingBounds
+	r.Bounds = Bounds{
+		// we subtract the length of "## " to achieve better insertion points
+		Start: r.HeadlineBounds.Start - 3,
+		Stop:  r.HeadlineBounds.Stop, // This will be incremented later
 	}
 
-	return false
+	// Set the prepared one as active
+	run.currentRelease = &r
+	run.currentReleaseIsNextRelease = line == "[Unreleased]" || line == "Unreleased"
+}
+
+// Finalizes the current section and prepares a new one
+func (run *parserRun) handleNewReleaseSection(heading *ast.Heading) {
+	bounds := computeBounds(heading)
+	bounds.Start = bounds.Start - 4 // we subtract the length of "### " to achieve better insertion points
+	section := Section{
+		Type:   ParseChangeType(string(heading.Text(run.source))),
+		Items:  make([]Item, 0),
+		Bounds: bounds,
+	}
+	run.currentRelease.Sections = append(run.currentRelease.Sections, section)
+}
+
+// Can be used to widen the bounds of a section
+func (run *parserRun) handleListOfChanges(list *ast.List) {
+	bounds := computeBounds(list)
+	run.currentSection().Bounds.Stop = bounds.Stop
+}
+
+func (run *parserRun) handleListOfChangesItem(item *ast.ListItem) {
+	bounds := computeBounds(item)
+
+	currentSection := run.currentSection()
+	currentSection.Bounds.Stop = bounds.Stop
+	currentSection.Items = append(currentSection.Items, Item{Bounds: bounds})
 }
 
 func parseVersion(line string) string {
@@ -318,14 +239,4 @@ func parseDate(line string) string {
 	}
 
 	return ""
-}
-
-func (changelog *Changelog) FindRelease(version string) *Release {
-	for _, release := range changelog.Releases.Past {
-		if release.Version == version {
-			return &release
-		}
-	}
-
-	return nil
 }
