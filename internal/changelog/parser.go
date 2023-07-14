@@ -60,7 +60,6 @@ func Parse(source []byte) Changelog {
 
 		return ast.WalkContinue, nil
 	})
-
 	if err != nil {
 		fmt.Printf("Warning: %s\n", err.Error())
 	}

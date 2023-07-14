@@ -5,8 +5,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var merge bool
-var prefix bool
+var (
+	merge  bool
+	prefix bool
+)
 
 var diffCmd = &cobra.Command{
 	Use:     "diff [flags] from to",
