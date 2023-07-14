@@ -111,5 +111,5 @@ func (merged *mergedSections) render(changelog *Changelog, doPrefix bool) string
 		sections[int(changeType)] = "## " + ChangeTypeLabel(changeType) + "\n" + strings.Join(renderedItems, "\n")
 	}
 
-	return strings.Join(sections, "\n\n")
+	return strings.TrimSpace(strings.Join(sections, "\n\n"))
 }
