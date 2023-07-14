@@ -51,6 +51,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// diffCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	diffCmd.Flags().BoolVarP(&merge, "merge", "", false, "Merge sections into a single continuous")
+	diffCmd.Flags().BoolVarP(&merge, "merged", "", false, "Merge sections into a single continuous")
 	diffCmd.Flags().BoolVarP(&prefix, "prefix", "", false, "When --merge is passed, prefix each change with its version number")
 }
