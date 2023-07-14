@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	// "fmt"
-
 	"fmt"
 	"os"
 	"strings"
@@ -42,7 +40,6 @@ func runInsertCmd(changelog *clog.Changelog, args []string, filename string, cha
 	return os.WriteFile(filename, []byte(newSource), 0o774)
 }
 
-// insertCmd represents the insert command
 var insertCmd = &cobra.Command{
 	Use:     "insert",
 	Aliases: []string{"i"},

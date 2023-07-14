@@ -10,7 +10,6 @@ import (
 	clog "github.com/niclasvaneyk/keepac/internal/changelog"
 )
 
-// yankCmd represents the yank command
 var yankCmd = &cobra.Command{
 	Use:     "yank",
 	Aliases: []string{"yeet"},
@@ -66,14 +65,4 @@ var yankCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(yankCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// yankCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// yankCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

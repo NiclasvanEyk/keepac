@@ -1,6 +1,3 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -21,16 +18,9 @@ var (
 	isPatch bool
 )
 
-// releaseCmd represents the release command
 var releaseCmd = &cobra.Command{
 	Use:   "release",
 	Short: "Turns the [Unreleased] section into a proper release",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		changelog, changelogPath, err := clog.ResolveChangelog()
 		if err != nil {
@@ -74,20 +64,10 @@ to quickly create a Cobra application.`,
 func init() {
 	rootCmd.AddCommand(releaseCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// releaseCmd.PersistentFlags().String("foo", "", "A help for foo")
-
 	releaseCmd.Flags().BoolVarP(&isMajor, "major", "", false, "Release a new major version")
 	releaseCmd.Flags().BoolVarP(&isMinor, "minor", "", false, "Release a new minor version")
 	releaseCmd.Flags().BoolVarP(&isPatch, "patch", "", false, "Release a new patch version")
 	releaseCmd.MarkFlagsMutuallyExclusive("major", "minor", "patch")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// releaseCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func getNextVersion(prev *semver.Version) string {
