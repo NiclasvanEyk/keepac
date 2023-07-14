@@ -25,12 +25,12 @@ func (changelog *Changelog) Merge(from string, to string, prefixItemsWithVersion
 		return "", err
 	}
 
-	merged := EmptyMergedSections()
+	merged := emptyMergedSections()
 	for _, release := range releases {
-		merged.Merge(release)
+		merged.merge(release)
 	}
 
-	rendered := merged.Render(changelog, prefixItemsWithVersion)
+	rendered := merged.render(changelog, prefixItemsWithVersion)
 
 	return fmt.Sprintf("# %s -> %s\n\n%s", from, to, rendered), nil
 }
@@ -61,29 +61,29 @@ func releasesFromTo(changelog *Changelog, from string, to string) ([]Release, er
 	return between, fmt.Errorf("version '%s' does not exist", from)
 }
 
-type MergedItem struct {
+type mergedItem struct {
 	Release Release
 	Item    *Item
 }
 
-type MergedSections struct {
-	sections [][]MergedItem
+type mergedSections struct {
+	sections [][]mergedItem
 }
 
-func EmptyMergedSections() MergedSections {
-	return MergedSections{
-		sections: make([][]MergedItem, int(LastChangeType())+1),
+func emptyMergedSections() mergedSections {
+	return mergedSections{
+		sections: make([][]mergedItem, int(LastChangeType())+1),
 	}
 }
 
-func (merged *MergedSections) Merge(release Release) {
+func (merged *mergedSections) merge(release Release) {
 	for _, section := range release.Sections {
 		index := int(section.Type)
 		if merged.sections[index] == nil {
-			merged.sections[index] = make([]MergedItem, 0)
+			merged.sections[index] = make([]mergedItem, 0)
 		}
 		for _, item := range section.Items {
-			merged.sections[index] = append(merged.sections[index], MergedItem{
+			merged.sections[index] = append(merged.sections[index], mergedItem{
 				Release: release,
 				Item:    &item,
 			})
@@ -91,7 +91,7 @@ func (merged *MergedSections) Merge(release Release) {
 	}
 }
 
-func (merged *MergedSections) Render(changelog *Changelog, doPrefix bool) string {
+func (merged *mergedSections) render(changelog *Changelog, doPrefix bool) string {
 	sections := make([]string, int(LastChangeType())+1)
 	for _, changeType := range KnownChangeTypes() {
 		items := merged.sections[int(changeType)]
