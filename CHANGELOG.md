@@ -6,6 +6,12 @@ Until now this file serves more or less as a playground for exploratory tests.
 
 ## [Unreleased]
 
+## 0.0.8 - 2023-07-21
+
+### Changed
+
+- The generated release notes on GitHub now omit the redundant release heading
+
 ## 0.0.7 - 2023-07-21
 
 ### Added

@@ -23,7 +23,7 @@ jobs:
       - name: Setup keepac
         run: go build -o changelog .
       - name: Generate Release Notes
-        run: ./changelog show --plain $GITHUB_REF_NAME > release-notes.md && cat release-notes.md
+        run: ./changelog show --plain $GITHUB_REF_NAME | tail -n +3 > release-notes.md && cat release-notes.md
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
