@@ -37,7 +37,36 @@ func runInsertCmd(changelog *clog.Changelog, args []string, filename string, cha
 	response = normalized(response)
 
 	newSource := changelog.AddItem(changeType, response)
-	return os.WriteFile(filename, []byte(newSource), 0o774)
+	err = os.WriteFile(filename, []byte(newSource), 0o774)
+	if err != nil {
+		return err
+	}
+
+	return clog.Show(viewAfterInsertion(newSource, changeType))
+}
+
+func viewAfterInsertion(newSource string, changeType clog.ChangeType) string {
+	newChangelog := clog.Parse([]byte(newSource))
+	editedSection := newChangelog.Releases.Next.FindSection(changeType)
+	items := make([]string, 0)
+	const MAX_ITEMS_SHOWN = 4
+
+	if len(editedSection.Items) > MAX_ITEMS_SHOWN {
+		items = append(items, "- ...")
+	}
+
+	index := (len(editedSection.Items) - MAX_ITEMS_SHOWN) - 1
+	if index < 0 {
+		index = 0
+	}
+	for ; len(items) < MAX_ITEMS_SHOWN && index < len(editedSection.Items); index++ {
+		bounds := editedSection.Items[index].Bounds
+		items = append(items, "- "+newChangelog.ContentWithin(&bounds))
+	}
+
+	headline := "### " + clog.ChangeTypeLabel(changeType)
+
+	return headline + "\n" + strings.Join(items, "\n")
 }
 
 var insertCmd = &cobra.Command{
