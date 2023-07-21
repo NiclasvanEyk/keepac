@@ -20,11 +20,13 @@ jobs:
         uses: actions/setup-go@v4
         with:
           cache: true
+      - name: Setup keepac
+        run: go build -o changelog .
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
           version: latest
-          args: release --clean
+          args: release --clean --release-notes <(./changelog show $GITHUB_REF_NAME)
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
