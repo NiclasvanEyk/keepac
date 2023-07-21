@@ -26,7 +26,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v4
         with:
           version: latest
-          args: release --clean --release-notes <(./changelog show $GITHUB_REF_NAME)
+          args: release --clean --release-notes <(./changelog show --plain $GITHUB_REF_NAME)
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
