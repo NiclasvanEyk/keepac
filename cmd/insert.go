@@ -48,6 +48,10 @@ func runInsertCmd(changelog *clog.Changelog, args []string, filename string, cha
 func viewAfterInsertion(newSource string, changeType clog.ChangeType) string {
 	newChangelog := clog.Parse([]byte(newSource))
 	editedSection := newChangelog.Releases.Next.FindSection(changeType)
+	if editedSection == nil {
+		return ""
+	}
+
 	items := make([]string, 0)
 	const MAX_ITEMS_SHOWN = 4
 

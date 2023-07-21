@@ -289,3 +289,32 @@ func TestInsertsCorrectlyRegressionTest(t *testing.T) {
 
 	scenario(t, source, Added, addition, expected)
 }
+
+func TestInsertsCorrectlyWhenEmptyUnreleasedSectionPreceedsPastRelease(t *testing.T) {
+	source := `# Changelog
+
+## [Unreleased]
+
+## 1.0.0 - [2020-01-01]
+
+### Added
+
+- The initial version`
+
+	addition := "- Something"
+	expected := `# Changelog
+
+## [Unreleased]
+
+### Removed
+
+- Something
+
+## 1.0.0 - [2020-01-01]
+
+### Added
+
+- The initial version`
+
+	scenario(t, source, Removed, addition, expected)
+}
