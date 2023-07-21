@@ -22,11 +22,13 @@ jobs:
           cache: true
       - name: Setup keepac
         run: go build -o changelog .
+      - name: Generate Release Notes
+        run: ./changelog show --plain $GITHUB_REF_NAME > release-notes.md && cat release-notes.md
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v4
         with:
           version: latest
-          args: release --clean --release-notes <(./changelog show --plain $GITHUB_REF_NAME)
+          args: release --clean --release-notes="release-notes.md"
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
           # Your GoReleaser Pro key, if you are using the 'goreleaser-pro' distribution
