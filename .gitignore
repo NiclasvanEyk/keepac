@@ -5,3 +5,7 @@
 # GoReleaser output
 dist/
 completions/
+
+# Gets generated during the goreleaser workflow and if it is not ignored,
+# goreleaser will complain, that git is in a dirty state.
+/release-notes.md
