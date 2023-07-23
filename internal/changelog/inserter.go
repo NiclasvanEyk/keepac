@@ -101,16 +101,7 @@ func determineInsertionPoint(changeType ChangeType, changelog *Changelog) (int, 
 	// To make things easy we first handle the edge case where there is an
 	// [Unreleased] heading, without any actual sections in it.
 	if len(nextRelease.Sections) == 0 {
-		// It could be the case, that we have no past releases at all
-		// # Changelog
-		//
-		// ## [Unreleased]               <-- Add after this line
-		if len(changelog.Releases.Past) == 0 {
-			return changelog.Stop(), NewLines{Before: 2, After: 0}
-		}
-
-		latestRelease := changelog.Releases.Past[len(changelog.Releases.Past)-1]
-		return latestRelease.Bounds.Start, NewLines{Before: 0, After: 2}
+		return nextRelease.HeadlineBounds.Stop, NewLines{Before: 2, After: 2}
 	}
 
 	// Now with all other edge cases handled we can shift our focus to adding a
