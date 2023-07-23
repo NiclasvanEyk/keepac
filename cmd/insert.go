@@ -51,11 +51,13 @@ func viewAfterInsertion(newSource string, changeType clog.ChangeType) string {
 	items := make([]string, 0)
 	const MAX_ITEMS_SHOWN = 4
 
+	offset := 0
 	if len(editedSection.Items) > MAX_ITEMS_SHOWN {
+		offset = 1
 		items = append(items, "- ...")
 	}
 
-	index := (len(editedSection.Items) - MAX_ITEMS_SHOWN) - 1
+	index := (len(editedSection.Items) - MAX_ITEMS_SHOWN) + offset
 	if index < 0 {
 		index = 0
 	}
