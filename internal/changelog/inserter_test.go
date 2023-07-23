@@ -1,6 +1,10 @@
 package changelog
 
-import "testing"
+import (
+	"testing"
+
+	"gotest.tools/assert"
+)
 
 func scenario(
 	t *testing.T,
@@ -12,9 +16,10 @@ func scenario(
 	changelog := Parse([]byte(source))
 	after := changelog.AddItem(changeType, addition)
 
-	if after != expected {
-		t.Errorf("Resulting changelog did not match expectations:\n\n'%v'\n\n is not\n\n'%v'", after, expected)
-	}
+	assert.Equal(t, expected, after)
+	// if after != expected {
+	// 	t.Errorf("Resulting changelog did not match expectations:\n\n'%v'\n\n is not\n\n'%v'", after, expected)
+	// }
 }
 
 func TestAddToCompletelyEmptyChangelog(t *testing.T) {
@@ -261,7 +266,9 @@ func TestInsertsAfterEmptyButExistingUnreleasedSectionWithoutAnyPastReleases(t *
 
 ### Added
 
-- Something`
+- Something
+
+`
 
 	scenario(t, source, changeType, addition, expected)
 }
@@ -288,4 +295,45 @@ func TestInsertsCorrectlyRegressionTest(t *testing.T) {
 - New item at the end`
 
 	scenario(t, source, Added, addition, expected)
+}
+
+func TestInsertsCorrectlyWhenEmptyUnreleasedSectionPreceedsTwoPastReleases(t *testing.T) {
+	source := `# Changelog
+
+## [Unreleased]
+
+## 0.0.8 - 2023-07-21
+
+### Changed
+
+- The generated release notes on GitHub now omit the redundant release heading
+
+## [0.0.1] - 2020-01-01
+
+### Added
+
+- The first version`
+
+	addition := "- Something"
+	expected := `# Changelog
+
+## [Unreleased]
+
+### Removed
+
+- Something
+
+## 0.0.8 - 2023-07-21
+
+### Changed
+
+- The generated release notes on GitHub now omit the redundant release heading
+
+## [0.0.1] - 2020-01-01
+
+### Added
+
+- The first version`
+
+	scenario(t, source, Removed, addition, expected)
 }
