@@ -22,19 +22,10 @@ var (
 )
 
 func runInsertCmd(changelog *clog.Changelog, args []string, filename string, changeType clog.ChangeType) error {
-	var response string
-	var err error
-
-	if len(args) > 0 {
-		response = strings.Join(args, " ")
-	} else {
-		response, err = editor.Prompt("- ", "<!-- Add your changes above. Don't worry, this line will be excluded from the final output. -->")
-		if err != nil {
-			return err
-		}
+	response, err := promptForDescription(args)
+	if err != nil {
+		return err
 	}
-
-	response = normalized(response)
 
 	newSource := changelog.AddItem(changeType, response)
 	err = os.WriteFile(filename, []byte(newSource), 0o774)
@@ -45,9 +36,29 @@ func runInsertCmd(changelog *clog.Changelog, args []string, filename string, cha
 	return clog.Show(viewAfterInsertion(newSource, changeType))
 }
 
+func promptForDescription(args []string) (string, error) {
+	var response string
+	var err error
+
+	if len(args) > 0 {
+		response = strings.Join(args, " ")
+	} else {
+		response, err = editor.Prompt("- ", "<!-- Add your changes above. Don't worry, this line will be excluded from the final output. -->")
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return normalized(response), err
+}
+
 func viewAfterInsertion(newSource string, changeType clog.ChangeType) string {
 	newChangelog := clog.Parse([]byte(newSource))
 	editedSection := newChangelog.Releases.Next.FindSection(changeType)
+	if editedSection == nil {
+		return ""
+	}
+
 	items := make([]string, 0)
 	const MAX_ITEMS_SHOWN = 4
 
