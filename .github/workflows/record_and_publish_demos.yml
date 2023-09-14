@@ -2,7 +2,8 @@ name: Record Demo Workflows And Publish Them To GitHub Pages
 
 on:
   push:
-    branches: [main]
+    tags:
+      - "*"
   workflow_dispatch:
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
