@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `changelog path` as an alias of `changelog find`
+
 ### Fixed
 
 - `changelog release` omitting a few characters at the end of the printed summary

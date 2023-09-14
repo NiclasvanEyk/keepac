@@ -9,8 +9,9 @@ import (
 )
 
 var findCmd = &cobra.Command{
-	Use:   "find",
-	Short: "Attempts to find the nearest CHANGELOG.md file relative to the current working directory",
+	Use:     "find",
+	Aliases: []string{"path"},
+	Short:   "Attempts to find the nearest CHANGELOG.md file relative to the current working directory",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		path, err := clog.ResolvePathToChangelog()
 		if err != nil {
