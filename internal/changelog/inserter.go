@@ -138,6 +138,10 @@ func (changelog *Changelog) ReplacedWithinBounds(bounds Bounds, replacement stri
 	return source[:bounds.Start] + replacement + source[bounds.Stop:]
 }
 
+func (changelog *Changelog) DiffLen(other string) int {
+	return len(other) - len(changelog.source)
+}
+
 func (changelog *Changelog) WithAddition(insertionPoint int, addition string) string {
 	source := changelog.source
 

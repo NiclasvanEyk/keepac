@@ -41,6 +41,8 @@ var releaseCmd = &cobra.Command{
 			rawVersion := changelog.Releases.Past[0].Version
 			previousVersion = semver.MustParse(rawVersion)
 		} else {
+			// TODO: It would be nice, if we ask the user instead. Maybe there were
+			//       releases before this one, but they have not been documented yet.
 			previousVersion = semver.Version{Major: 0, Minor: 0, Patch: 0}
 		}
 
@@ -56,7 +58,11 @@ var releaseCmd = &cobra.Command{
 			return err
 		}
 
-		relevantSection := newSource[nextRelease.Bounds.Start:nextRelease.Bounds.Stop]
+		// Since we replaced the headline, simply using the old bounds would cut
+		// of some letters at the end
+		stop := nextRelease.Bounds.Stop + changelog.DiffLen(newSource)
+		relevantSection := newSource[nextRelease.Bounds.Start:stop]
+
 		return clog.Show(relevantSection)
 	},
 }
