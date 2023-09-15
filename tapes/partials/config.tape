@@ -7,4 +7,4 @@ Set Padding 5
 
 Set FontSize 18
 Set Width 1280
-Set Height 1024
+Set Height 860
