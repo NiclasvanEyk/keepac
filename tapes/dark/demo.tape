@@ -11,51 +11,51 @@ Show
 
 Type "# Imagine you start a new project and want to keep a proper changelog."
 Enter
-Sleep 3500ms
+Sleep 2500ms
 
 Type "# keepac's `changelog` CLI makes this simple:"
 Enter
-Sleep 3500ms
+Sleep 2500ms
 
 Type "changelog init"
 Enter
-Sleep 5000ms
+Sleep 4000ms
 
 Type "clear"
 Enter
-Sleep 3500ms
+Sleep 1500ms
 
-Type "# That looks kinda empty. Let's change that!"
+Type "# That looked kinda empty. Let's change that!"
 Enter
-Sleep 3500ms
+Sleep 2500ms
 
 Type "changelog add A beeeeauuuutiful, shiny new feature"
 Enter
-Sleep 3500ms
+Sleep 1500ms
 
 Type "# Good job on that feature btw!"
 Enter
-Sleep 3500ms
+Sleep 2500ms
 
 Type "# We can view our changelog anytime:"
 Enter
-Sleep 2500ms
+Sleep 1500ms
 
 Type "changelog show"
 Enter
-Sleep 3500ms
+Sleep 2500ms
 
 Type "# Let's add a few more changes!"
 Enter
-Sleep 3500ms
+Sleep 1500ms
 
 Type "changelog fix A gnarly, disastrous bug"
 Enter
-Sleep 2500ms
+Sleep 1500ms
 
 Type "changelog change Something that breaks backwards compatibility"
 Enter
-Sleep 4500ms
+Sleep 2500ms
 
 Type "clear"
 Enter
@@ -63,7 +63,7 @@ Sleep 1500ms
 
 Type "# I feel like we have enough changes to finally launch our project. Let's release v1!"
 Enter
-Sleep 3500ms
+Sleep 2500ms
 
 Type "changelog release --major"
 Enter
@@ -77,7 +77,7 @@ Sleep 1500ms
 Type "changelog --help"
 Enter
 
-Sleep 15000ms
+Sleep 10000ms
 
 Hide
 Type "cd ../"
