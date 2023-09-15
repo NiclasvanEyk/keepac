@@ -8,5 +8,5 @@ Set Framerate 30
 Set Padding 5
 
 Set FontSize 18
-Set Width 1660
-Set Height 934
+Set Width 830
+Set Height 467
