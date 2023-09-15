@@ -6,5 +6,5 @@ Require changelog
 Set Padding 5
 
 Set FontSize 18
-Set Width 830
-Set Height 467
+Set Width 1280
+Set Height 1024
