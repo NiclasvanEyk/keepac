@@ -47,6 +47,10 @@ func promptForDescription(args []string) (string, error) {
 		if err != nil {
 			return "", err
 		}
+
+		if response == "-" {
+			return "", fmt.Errorf("no description provided")
+		}
 	}
 
 	return normalized(response), err
