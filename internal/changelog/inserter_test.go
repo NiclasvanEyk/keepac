@@ -337,3 +337,29 @@ func TestInsertsCorrectlyWhenEmptyUnreleasedSectionPreceedsTwoPastReleases(t *te
 
 	scenario(t, source, Removed, addition, expected)
 }
+
+func TestDoesNotCrashOnEmptyBulletPoints(t *testing.T) {
+	source := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- -
+`
+	addition := "- Something"
+
+	expected := `# Changelog
+
+## [Unreleased]
+
+### Added
+
+- -
+
+### Removed
+
+- Something`
+
+	scenario(t, source, Removed, addition, expected)
+}

@@ -119,7 +119,7 @@ func computeBounds(node ast.Node) Bounds {
 	current := node
 	for current.Lines().Len() <= 0 {
 		if !current.HasChildren() {
-			panic("Can't iterate further down, something is off!")
+			break
 		}
 		current = current.FirstChild()
 	}
@@ -128,6 +128,14 @@ func computeBounds(node ast.Node) Bounds {
 	for _, line := range lines.Sliced(0, lines.Len()) {
 		start = min(start, line.Start)
 		stop = max(stop, line.Stop)
+	}
+
+	if start == math.MaxInt {
+		start = 0
+	}
+
+	if stop == -1 {
+		stop = 0
 	}
 
 	return Bounds{Start: start, Stop: stop}

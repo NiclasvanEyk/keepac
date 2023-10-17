@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The option to _manually_ specify the version when using the `release` sub-command using the a new `--version` option
 
+### Fixed
+
+- Empty bullet points don't lead to panics when the inserting a new change
+
 ## [0.0.9] - 2023-10-17
 
 ### Added
