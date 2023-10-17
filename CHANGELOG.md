@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `changelog path` as an alias of `changelog find`
+- The column at which text wraps can be configured using the `KEEPAC_WRAP_AT` environment variable
+
+### Changed
+
+- The output now wraps after 85 characters
 
 ### Fixed
 
