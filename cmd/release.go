@@ -13,15 +13,16 @@ import (
 )
 
 var (
-	isMajor bool
-	isMinor bool
-	isPatch bool
+	isMajor                  bool
+	isMinor                  bool
+	isPatch                  bool
+	manuallySpecifiedVersion string
 )
 
 var releaseCmd = &cobra.Command{
 	Use:   "release",
 	Short: "Turns the [Unreleased] section into a proper release",
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		changelog, changelogPath, err := clog.ResolveChangelog()
 		if err != nil {
 			return err
@@ -36,18 +37,11 @@ var releaseCmd = &cobra.Command{
 			return fmt.Errorf("the [Unreleased] section of %s does not contain any changes", changelogPath)
 		}
 
-		var previousVersion semver.Version
-		if len(changelog.Releases.Past) > 0 {
-			rawVersion := changelog.Releases.Past[0].Version
-			previousVersion = semver.MustParse(rawVersion)
-		} else {
-			// TODO: It would be nice, if we ask the user instead. Maybe there were
-			//       releases before this one, but they have not been documented yet.
-			previousVersion = semver.Version{Major: 0, Minor: 0, Patch: 0}
+		version := manuallySpecifiedVersion
+		if manuallySpecifiedVersion == "" {
+			version = getVersion(changelog)
 		}
-
 		timestamp := time.Now().Format(time.DateOnly)
-		version := getNextVersion(&previousVersion)
 		newHeadline := fmt.Sprintf("[%s] - %s", version, timestamp)
 
 		bounds := nextRelease.HeadlineBounds
@@ -70,13 +64,22 @@ var releaseCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(releaseCmd)
 
-	releaseCmd.Flags().BoolVarP(&isMajor, "major", "", false, "Release a new major version")
-	releaseCmd.Flags().BoolVarP(&isMinor, "minor", "", false, "Release a new minor version")
-	releaseCmd.Flags().BoolVarP(&isPatch, "patch", "", false, "Release a new patch version")
-	releaseCmd.MarkFlagsMutuallyExclusive("major", "minor", "patch")
+	releaseCmd.Flags().BoolVar(&isMajor, "major", false, "Release a new major version")
+	releaseCmd.Flags().BoolVar(&isMinor, "minor", false, "Release a new minor version")
+	releaseCmd.Flags().BoolVar(&isPatch, "patch", false, "Release a new patch version")
+	releaseCmd.Flags().StringVarP(&manuallySpecifiedVersion, "version", "v", "", "Manually specify the a version")
+	releaseCmd.MarkFlagsMutuallyExclusive("major", "minor", "patch", "version")
 }
 
-func getNextVersion(prev *semver.Version) string {
+func getVersion(changelog *clog.Changelog) string {
+	var prev semver.Version
+	if len(changelog.Releases.Past) > 0 {
+		rawVersion := changelog.Releases.Past[0].Version
+		prev = semver.MustParse(rawVersion)
+	} else {
+		prev = semver.Version{Major: 0, Minor: 0, Patch: 0}
+	}
+
 	nextMajor := semver.Version{Major: prev.Major + 1, Minor: 0, Patch: 0}.String()
 	nextMinor := semver.Version{Major: prev.Major, Minor: prev.Minor + 1, Patch: 0}.String()
 	nextPatch := semver.Version{Major: prev.Major, Minor: prev.Minor, Patch: prev.Patch + 1}.String()
