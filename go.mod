@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/spf13/cobra v1.7.0
 	github.com/yuin/goldmark v1.5.4
-	golang.org/x/term v0.13.0
+	golang.org/x/term v0.18.0
 )
 
 require (
@@ -31,10 +31,10 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/sahilm/fuzzy v0.1.0 // indirect
 	github.com/yuin/goldmark-emoji v1.0.1 // indirect
-	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 )
 
 require (
