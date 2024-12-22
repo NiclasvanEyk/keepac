@@ -1,2 +1,0 @@
-Type "test"
-Enter

@@ -1,0 +1,12 @@
+[package]
+name = "keepac-cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "changelog"
+path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.5.23", features = ["derive", "env", "unicode"] }
+clap-verbosity-flag = "3.0.2"
