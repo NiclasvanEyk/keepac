@@ -8,5 +8,10 @@ name = "changelog"
 path = "src/main.rs"
 
 [dependencies]
+anyhow = "1.0.95"
 clap = { version = "4.5.23", features = ["derive", "env", "unicode"] }
 clap-verbosity-flag = "3.0.2"
+keepac = { path = "../keepac/" }
+
+[dev-dependencies]
+tempdir = "0.3.7"
