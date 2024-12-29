@@ -3,7 +3,16 @@ name = "keepac"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-
 [dev-dependencies]
 tempdir = "0.3.7"
+pulldown-cmark = "0.12.2"
+
+[build-dependencies]
+cc = "*"
+
+[dependencies]
+streaming-iterator = "0.1.9"
+termimad = "0.31.1"
+textwrap = { version = "0.16.1", features = ["terminal_size"] }
+tree-sitter = "0.24.6"
+tree-sitter-md = "0.3.2"

@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::{ErrorExitCode, KeepacCliError, SubcommandResult};
+use crate::{errors::ErrorExitCode, KeepacCliError, SubcommandResult};
 
 pub fn find(path: &Path) -> SubcommandResult {
     match keepac::find::nearest_changelog_path(path) {

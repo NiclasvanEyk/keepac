@@ -1,4 +1,5 @@
 use anyhow::anyhow;
+use keepac::render::render;
 use std::{fs::File, io::Write, path::Path};
 
 use crate::SubcommandResult;
@@ -27,7 +28,7 @@ pub(crate) fn init(path: &Path) -> SubcommandResult {
         "Initialized empty changelog at {}:",
         changelog_path.display()
     );
-    println!("\n{}", TEMPLATE);
+    render(TEMPLATE);
     Ok(())
 }
 

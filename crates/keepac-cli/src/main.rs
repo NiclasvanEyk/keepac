@@ -1,8 +1,10 @@
 pub mod commands;
-
-use std::{error::Error, fmt::Display, path::Path};
+pub mod errors;
 
 use clap::{Parser, Subcommand};
+use std::path::Path;
+
+use crate::errors::KeepacCliError;
 
 #[derive(Debug, Parser)]
 #[command(
@@ -34,49 +36,8 @@ enum Command {
     Search {},
     Secure {},
     Show {},
+    Versions {},
     Yank {},
-}
-
-#[derive(Debug, Clone, Copy)]
-enum ErrorExitCode {
-    Unknown = 1,
-    ChangelogNotFound = 2,
-}
-
-#[derive(Debug)]
-struct KeepacCliError {
-    pub message: String,
-    pub exit_code: ErrorExitCode,
-}
-
-impl Display for KeepacCliError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.message)
-    }
-}
-
-impl Error for KeepacCliError {
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        None
-    }
-}
-
-impl From<anyhow::Error> for KeepacCliError {
-    fn from(value: anyhow::Error) -> Self {
-        KeepacCliError {
-            message: format!("{}", value),
-            exit_code: ErrorExitCode::Unknown,
-        }
-    }
-}
-
-impl From<std::io::Error> for KeepacCliError {
-    fn from(value: std::io::Error) -> Self {
-        KeepacCliError {
-            message: format!("{}", value),
-            exit_code: ErrorExitCode::Unknown,
-        }
-    }
 }
 
 type SubcommandResult = Result<(), KeepacCliError>;
@@ -98,6 +59,7 @@ fn run(cli: Cli, path: &Path) -> SubcommandResult {
         Command::Search {} => todo!(),
         Command::Secure {} => todo!(),
         Command::Show {} => todo!(),
+        Command::Versions {} => commands::versions(path),
         Command::Yank {} => todo!(),
     }
 }
@@ -105,7 +67,9 @@ fn run(cli: Cli, path: &Path) -> SubcommandResult {
 fn main() {
     let cwd = std::env::current_dir().unwrap();
 
-    if let Err(err) = run(Cli::parse(), &cwd) {
+    let result = run(Cli::parse(), &cwd);
+
+    if let Err(err) = result {
         eprintln!("{}", err);
         std::process::exit(err.exit_code as i32);
     };
