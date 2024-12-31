@@ -49,7 +49,7 @@ fn run(cli: Cli, path: &Path) -> SubcommandResult {
         Command::Change {} => todo!(),
         Command::Deprecate {} => todo!(),
         Command::Diff {} => todo!(),
-        Command::Edit {} => todo!(),
+        Command::Edit {} => commands::edit(path),
         Command::Find {} => commands::find(path),
         Command::Fix {} => todo!(),
         Command::Init {} => commands::init(path),
@@ -58,7 +58,7 @@ fn run(cli: Cli, path: &Path) -> SubcommandResult {
         Command::Remove {} => todo!(),
         Command::Search {} => todo!(),
         Command::Secure {} => todo!(),
-        Command::Show {} => todo!(),
+        Command::Show {} => commands::show(path),
         Command::Versions {} => commands::versions(path),
         Command::Yank {} => todo!(),
     }

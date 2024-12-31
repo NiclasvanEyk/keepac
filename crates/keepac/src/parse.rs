@@ -74,6 +74,7 @@ pub fn parse_versions<'c>(changelog: &Changelog<'c>) -> Vec<Version<'c>> {
     let mut matches = query.matches();
 
     let mut versions = Vec::new();
+
     while let Some(m) = matches.next() {
         for c in m.captures {
             let text = c.node.utf8_text(changelog.source.as_bytes()).unwrap();
