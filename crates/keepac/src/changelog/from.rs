@@ -1,55 +1,76 @@
+use crate::find::nearest_changelog_path;
+use crate::parse::{parse_markdown, MarkdownParserError};
 use crate::Changelog;
+use std::io::Read;
+use std::{fs::File, path::Path};
+use thiserror::Error;
 
-use tree_sitter::Parser;
+/// Get a Changelog from a string
+impl<'s> TryFrom<&'s str> for Changelog<'s> {
+    type Error = MarkdownParserError;
 
-#[derive(Debug)]
-pub enum MarkdownParserError {
-    FailedToLoadGrammar,
-    CouldNotParseTree,
+    fn try_from(value: &'s str) -> Result<Self, Self::Error> {
+        Ok(Self {
+            source: std::borrow::Cow::Borrowed(value),
+            tree: parse_markdown(value)?,
+        })
+    }
 }
 
 /// Get a Changelog from a string
-impl<'a> TryFrom<&'a str> for Changelog<'a> {
+impl TryFrom<String> for Changelog<'_> {
     type Error = MarkdownParserError;
 
-    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
-        let mut parser = Parser::new();
-
-        let Ok(_) = parser.set_language(&tree_sitter_md::LANGUAGE.into()) else {
-            return Err(MarkdownParserError::FailedToLoadGrammar);
-        };
-
-        let Some(tree) = parser.parse(value, None) else {
-            return Err(MarkdownParserError::CouldNotParseTree);
-        };
-
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        let tree = parse_markdown(&value)?;
         Ok(Self {
-            source: value,
+            source: std::borrow::Cow::Owned(value),
             tree,
         })
     }
 }
 
-// Get a Changelog from a file
-// impl<'a> TryFrom<&'a str> for Changelog<'a> {
-//     type Error = MarkdownParserError;
-//
-//     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
-//         let mut parser = Parser::new();
-//
-//         let Ok(_) = parser.set_language(&tree_sitter_md::LANGUAGE.into()) else {
-//             return Err(MarkdownParserError::FailedToLoadGrammar);
-//         };
-//
-//         let Some(tree) = parser.parse(value, None) else {
-//             return Err(MarkdownParserError::CouldNotParseTree);
-//         };
-//
-//         Ok(Self {
-//             source: value,
-//             tree,
-//         })
-//     }
-// }
+#[derive(Error, Debug)]
+pub enum ChangelogFromFileError {
+    #[error("Failed to read the contents of the changelog file")]
+    FileError(#[from] std::io::Error),
 
-// Get a Changelog from a pathbuf that implements the recursive upwards iteration
+    #[error("Failed to parse the markdown file")]
+    MarkdownParserError(#[from] MarkdownParserError),
+}
+
+/// Get a Changelog from a file
+impl TryFrom<&mut File> for Changelog<'_> {
+    type Error = ChangelogFromFileError;
+
+    fn try_from(value: &mut File) -> Result<Self, Self::Error> {
+        let mut source = String::new();
+        value.read_to_string(&mut source)?;
+
+        Ok(Changelog::try_from(source)?)
+    }
+}
+
+#[derive(Error, Debug)]
+pub enum ChangelogFromPathError {
+    #[error("Nearest changelog could not be found")]
+    NoChangelogFound,
+
+    #[error("Failed to open the changelog file")]
+    FileError(#[from] std::io::Error),
+
+    #[error("Failed to parse the markdown file")]
+    FailedToOpenChangelog(#[from] ChangelogFromFileError),
+}
+
+pub(crate) fn changelog_try_from_nearest(
+    value: &Path,
+) -> Result<Changelog, ChangelogFromPathError> {
+    let Some(nearest) = nearest_changelog_path(value) else {
+        return Err(ChangelogFromPathError::NoChangelogFound);
+    };
+
+    let mut changelog_file = File::open(nearest)?;
+
+    Ok(Changelog::try_from(&mut changelog_file)?)
+}

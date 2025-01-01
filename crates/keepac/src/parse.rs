@@ -1,8 +1,28 @@
-use std::collections::HashMap;
-
-use streaming_iterator::StreamingIterator;
-
 use crate::Changelog;
+use std::collections::HashMap;
+use streaming_iterator::StreamingIterator;
+use thiserror::Error;
+use tree_sitter::{LanguageError, Parser, Tree};
+
+#[derive(Error, Debug)]
+pub enum MarkdownParserError {
+    #[error("Failed to load markdown grammar")]
+    FailedToLoadGrammar(#[from] LanguageError),
+
+    #[error("Failed to parse the changelog markdown file")]
+    CouldNotParseTree,
+}
+
+pub(crate) fn parse_markdown(value: impl AsRef<[u8]>) -> Result<Tree, MarkdownParserError> {
+    let mut parser = Parser::new();
+    parser.set_language(&tree_sitter_md::LANGUAGE.into())?;
+
+    let Some(tree) = parser.parse(value, None) else {
+        return Err(MarkdownParserError::CouldNotParseTree);
+    };
+
+    Ok(tree)
+}
 
 #[derive(Debug)]
 pub struct Version<'a> {
@@ -11,7 +31,7 @@ pub struct Version<'a> {
     pub href: Option<&'a str>,
 }
 
-pub fn parse_versions<'c>(changelog: &Changelog<'c>) -> Vec<Version<'c>> {
+pub fn parse_versions<'c>(changelog: &'c Changelog<'c>) -> Vec<Version<'c>> {
     let mut query =
         changelog.query("(atx_heading (atx_h2_marker) heading_content: (inline) @content)");
     let mut matches = query.matches();
@@ -34,7 +54,7 @@ pub fn parse_versions<'c>(changelog: &Changelog<'c>) -> Vec<Version<'c>> {
     versions
 }
 
-pub fn gather_link_defs<'a>(changelog: Changelog<'a>) -> HashMap<&'a str, &'a str> {
+pub fn gather_link_defs<'a>(changelog: &Changelog<'a>) -> HashMap<&'a str, &'a str> {
     let mut query = changelog
         .query("(link_reference_definition (link_label) @label (link_destination) @destination)");
     let mut matches = query.matches();
@@ -94,7 +114,7 @@ blah blah blah
     fn it_can_gather_link_defs() {
         let r = Changelog::try_from(A_CHANGELOG).unwrap();
 
-        let links = gather_link_defs(r);
+        let links = gather_link_defs(&r);
 
         assert_eq!(
             links.get("1.0.1").unwrap().to_owned(),
