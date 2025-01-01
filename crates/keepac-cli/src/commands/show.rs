@@ -3,6 +3,11 @@ use std::{fs::File, path::Path};
 
 use crate::{errors::ErrorExitCode, KeepacCliError, SubcommandResult};
 
+pub struct ShowCommandOptions {
+    /// An optional version to show the changes for
+    version: Option<String>,
+}
+
 pub fn show(path: &Path) -> SubcommandResult {
     let Some(changelog_path) = keepac::find::nearest_changelog_path(path) else {
         return Err(KeepacCliError {

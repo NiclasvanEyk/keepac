@@ -1,8 +1,8 @@
-use std::{collections::HashMap, fmt::Display};
+use std::fmt::Display;
 
 use tree_sitter::Node;
 
-use crate::parse::{gather_link_defs, Changelog};
+use crate::Changelog;
 
 struct ChangelogRenderer<'a, 'f> {
     changelog: &'a Changelog<'a>,
@@ -51,12 +51,6 @@ impl<'a> Display for Changelog<'a> {
         };
         renderer.render()
     }
-}
-
-#[derive(Debug)]
-enum MarkdownParserError {
-    FailedToLoadGrammar,
-    CouldNotParseTree,
 }
 
 pub fn render(changelog: &str) {

@@ -1,65 +1,8 @@
 use std::collections::HashMap;
 
 use streaming_iterator::StreamingIterator;
-use tree_sitter::{Parser, Query, QueryCursor, QueryMatch, QueryMatches, Tree};
 
-pub struct Changelog<'a> {
-    pub source: &'a str,
-    pub tree: Tree,
-}
-
-impl<'a> Changelog<'a> {
-    pub fn query(&'a self, query: &str) -> ChangelogQueryCursor<'a> {
-        ChangelogQueryCursor {
-            query: Query::new(&tree_sitter_md::LANGUAGE.into(), query).unwrap(),
-            cursor: QueryCursor::new(),
-            changelog: self,
-        }
-    }
-}
-
-pub struct ChangelogQueryCursor<'c> {
-    cursor: QueryCursor,
-    query: Query,
-    changelog: &'c Changelog<'c>,
-}
-
-impl<'c> ChangelogQueryCursor<'c> {
-    pub fn matches(&'c mut self) -> QueryMatches<'_, '_, &[u8], &[u8]> {
-        self.cursor.matches(
-            &self.query,
-            self.changelog.tree.root_node(),
-            self.changelog.source.as_bytes(),
-        )
-    }
-}
-
-#[derive(Debug)]
-pub enum MarkdownParserError {
-    FailedToLoadGrammar,
-    CouldNotParseTree,
-}
-
-impl<'a> TryFrom<&'a str> for Changelog<'a> {
-    type Error = MarkdownParserError;
-
-    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
-        let mut parser = Parser::new();
-
-        let Ok(_) = parser.set_language(&tree_sitter_md::LANGUAGE.into()) else {
-            return Err(MarkdownParserError::FailedToLoadGrammar);
-        };
-
-        let Some(tree) = parser.parse(value, None) else {
-            return Err(MarkdownParserError::CouldNotParseTree);
-        };
-
-        Ok(Self {
-            source: value,
-            tree,
-        })
-    }
-}
+use crate::Changelog;
 
 #[derive(Debug)]
 pub struct Version<'a> {

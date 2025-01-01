@@ -1,6 +1,7 @@
 use std::{fs::File, io::Read, path::Path};
 
-use keepac::parse::{parse_versions, Changelog};
+use keepac::parse::parse_versions;
+use keepac::Changelog;
 
 use crate::{errors::ErrorExitCode, KeepacCliError, SubcommandResult};
 
