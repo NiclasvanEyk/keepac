@@ -4,21 +4,22 @@ use std::{
     process::{Child, Command},
 };
 
-use crate::{errors::ErrorExitCode, KeepacCliError, SubcommandResult};
+use anyhow::anyhow;
+
+use crate::SubcommandResult;
 
 pub fn edit(path: &Path) -> SubcommandResult {
     let Some(changelog_path) = keepac::find::nearest_changelog_path(path) else {
-        return Err(KeepacCliError {
-            message: String::from("Failed to find CHANGELOG.md"),
-            exit_code: ErrorExitCode::ChangelogNotFound,
-        });
+        return Err(anyhow!("Failed to find CHANGELOG.md"));
     };
 
     let mut process = try_terminal_editor(&changelog_path)
         .unwrap_or_else(|| try_system_editor(&changelog_path))?;
     let exit_status = process.wait()?;
 
-    // TODO: exit_status
+    if !exit_status.success() {
+        return Err(anyhow!("Editor exited with status {exit_status}"));
+    }
 
     Ok(())
 }

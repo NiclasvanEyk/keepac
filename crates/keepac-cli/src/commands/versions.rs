@@ -1,9 +1,9 @@
-use std::{fs::File, io::Read, path::Path};
+use std::path::Path;
 
 use keepac::parse::parse_versions;
 use keepac::Changelog;
 
-use crate::{errors::ErrorExitCode, KeepacCliError, SubcommandResult};
+use crate::SubcommandResult;
 
 pub(crate) fn versions(path: &Path) -> SubcommandResult {
     let changelog = Changelog::nearest(path)?;

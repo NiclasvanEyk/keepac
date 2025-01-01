@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 pub(crate) fn init(path: &Path) -> SubcommandResult {
     let changelog_path = path.join("CHANGELOG.md");
     if changelog_path.exists() {
-        return Err(anyhow!("CHANGELOG.md already exists").into());
+        return Err(anyhow!("CHANGELOG.md already exists"));
     }
 
     let mut changelog = File::create_new(&changelog_path)?;

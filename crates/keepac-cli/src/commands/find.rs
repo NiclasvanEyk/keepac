@@ -1,6 +1,8 @@
 use std::path::Path;
 
-use crate::{errors::ErrorExitCode, KeepacCliError, SubcommandResult};
+use anyhow::anyhow;
+
+use crate::SubcommandResult;
 
 pub fn find(path: &Path) -> SubcommandResult {
     match keepac::find::nearest_changelog_path(path) {
@@ -8,9 +10,6 @@ pub fn find(path: &Path) -> SubcommandResult {
             println!("{}", changelog_path.display());
             Ok(())
         }
-        None => Err(KeepacCliError {
-            message: String::from("Failed to find CHANGELOG.md"),
-            exit_code: ErrorExitCode::ChangelogNotFound,
-        }),
+        None => Err(anyhow!("Failed to find CHANGELOG.md")),
     }
 }

@@ -1,9 +1,8 @@
-use std::io::Read;
-use std::{fs::File, path::Path};
+use std::path::Path;
 
 use keepac::Changelog;
 
-use crate::{errors::ErrorExitCode, KeepacCliError, SubcommandResult};
+use crate::SubcommandResult;
 
 pub struct ShowCommandOptions {
     /// An optional version to show the changes for

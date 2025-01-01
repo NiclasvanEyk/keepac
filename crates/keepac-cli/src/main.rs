@@ -1,10 +1,7 @@
 pub mod commands;
-pub mod errors;
 
 use clap::{Parser, Subcommand};
 use std::path::Path;
-
-use crate::errors::KeepacCliError;
 
 #[derive(Debug, Parser)]
 #[command(
@@ -40,7 +37,7 @@ enum Command {
     Yank {},
 }
 
-type SubcommandResult = Result<(), KeepacCliError>;
+type SubcommandResult = Result<(), anyhow::Error>;
 
 fn run(cli: Cli, path: &Path) -> SubcommandResult {
     let command = cli.command.unwrap_or(Command::Show {});
@@ -71,6 +68,6 @@ fn main() {
 
     if let Err(err) = result {
         eprintln!("{}", err);
-        std::process::exit(err.exit_code as i32);
+        std::process::exit(1);
     };
 }

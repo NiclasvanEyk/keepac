@@ -54,7 +54,7 @@ pub fn parse_versions<'c>(changelog: &'c Changelog<'c>) -> Vec<Version<'c>> {
     versions
 }
 
-pub fn gather_link_defs<'a>(changelog: &Changelog<'a>) -> HashMap<&'a str, &'a str> {
+pub fn gather_link_defs<'a>(changelog: &'a Changelog<'a>) -> HashMap<&'a str, &'a str> {
     let mut query = changelog
         .query("(link_reference_definition (link_label) @label (link_destination) @destination)");
     let mut matches = query.matches();
