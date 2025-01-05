@@ -1,5 +1,6 @@
 use crate::find::nearest_changelog_path;
-use crate::parse::{parse_markdown, MarkdownParserError};
+use crate::markdown::MarkdownDocument;
+use crate::parse::MarkdownParserError;
 use crate::Changelog;
 use std::io::Read;
 use std::{fs::File, path::Path};
@@ -11,8 +12,7 @@ impl<'s> TryFrom<&'s str> for Changelog<'s> {
 
     fn try_from(value: &'s str) -> Result<Self, Self::Error> {
         Ok(Self {
-            source: std::borrow::Cow::Borrowed(value),
-            tree: parse_markdown(value)?,
+            document: MarkdownDocument::try_from(value)?,
         })
     }
 }
@@ -22,10 +22,8 @@ impl TryFrom<String> for Changelog<'_> {
     type Error = MarkdownParserError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        let tree = parse_markdown(&value)?;
         Ok(Self {
-            source: std::borrow::Cow::Owned(value),
-            tree,
+            document: MarkdownDocument::try_from(value)?,
         })
     }
 }

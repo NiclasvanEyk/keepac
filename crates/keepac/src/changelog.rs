@@ -1,19 +1,14 @@
-use std::{borrow::Cow, path::Path};
+use std::path::Path;
 
-use tree_sitter::{Query, QueryCursor, Tree};
-
-use crate::changelog::query::ChangelogQueryCursor;
+use crate::markdown::MarkdownDocument;
 
 use self::from::{changelog_try_from_nearest, ChangelogFromPathError};
 
 /// Implementations of [From] and [TryFrom] for [Changelog] from various structs.
 mod from;
 
-mod query;
-
 pub struct Changelog<'a> {
-    pub source: Cow<'a, str>,
-    pub(crate) tree: Tree,
+    pub document: MarkdownDocument<'a>,
 }
 
 impl<'a> Changelog<'a> {
@@ -24,13 +19,5 @@ impl<'a> Changelog<'a> {
         changelog_try_from_nearest(path)
     }
 
-    pub fn query(&'a self, query: &str) -> ChangelogQueryCursor<'a> {
-        ChangelogQueryCursor {
-            query: Query::new(&tree_sitter_md::LANGUAGE.into(), query).unwrap(),
-            cursor: QueryCursor::new(),
-            changelog: self,
-        }
-    }
-
-    // TODO: Version iterator
+    // TODO: Version section iterator, maybe even structured in some way?
 }

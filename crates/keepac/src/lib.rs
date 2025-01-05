@@ -7,4 +7,7 @@ pub mod parse;
 /// Render out changelogs to the terminal.
 pub mod render;
 
+/// Treesitter utilities for markdown files
+pub mod markdown;
+
 pub use changelog::Changelog;

@@ -32,32 +32,36 @@ pub struct Version<'a> {
 }
 
 pub fn parse_versions<'c>(changelog: &'c Changelog<'c>) -> Vec<Version<'c>> {
-    let mut query =
-        changelog.query("(atx_heading (atx_h2_marker) heading_content: (inline) @content)");
-    let mut matches = query.matches();
+    changelog
+        .document
+        .query_cursor("(atx_heading (atx_h2_marker) heading_content: (inline) @content)")
+        .unwrap()
+        .captured_nodes()
+        .iter()
+        .map(|heading_node| {
+            let parts: Vec<&str> = heading_node
+                .utf8_text(changelog.document.source.as_ref())
+                .unwrap()
+                .split(" - ")
+                .collect();
 
-    let mut versions = Vec::new();
-
-    while let Some(m) = matches.next() {
-        for c in m.captures {
-            let text = c.node.utf8_text(changelog.source.as_bytes()).unwrap();
-            let parts: Vec<&str> = text.split(" - ").collect();
-
-            versions.push(Version {
+            Version {
                 name: parts[0],
                 released_at: parts.get(1).copied(),
                 href: None,
-            })
-        }
-    }
-
-    versions
+            }
+        })
+        .collect()
 }
 
 pub fn gather_link_defs<'a>(changelog: &'a Changelog<'a>) -> HashMap<&'a str, &'a str> {
-    let mut query = changelog
-        .query("(link_reference_definition (link_label) @label (link_destination) @destination)");
-    let mut matches = query.matches();
+    let mut cursor = changelog
+        .document
+        .query_cursor(
+            "(link_reference_definition (link_label) @label (link_destination) @destination)",
+        )
+        .unwrap();
+    let mut matches = cursor.matches();
 
     let mut links = HashMap::new();
     while let Some(m) = matches.next() {
@@ -67,7 +71,7 @@ pub fn gather_link_defs<'a>(changelog: &'a Changelog<'a>) -> HashMap<&'a str, &'
             .first()
             .unwrap()
             .node
-            .utf8_text(changelog.source.as_bytes())
+            .utf8_text(changelog.document.source.as_ref())
             .unwrap()
             .strip_prefix('[')
             .unwrap()
@@ -77,7 +81,7 @@ pub fn gather_link_defs<'a>(changelog: &'a Changelog<'a>) -> HashMap<&'a str, &'
             .get(1)
             .unwrap()
             .node
-            .utf8_text(changelog.source.as_bytes())
+            .utf8_text(changelog.document.source.as_ref())
             .unwrap();
 
         links.insert(label, destination);
