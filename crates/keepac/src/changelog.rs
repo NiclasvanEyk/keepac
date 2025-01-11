@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{fs::File, path::Path};
 
 use crate::markdown::MarkdownDocument;
 
@@ -17,6 +17,10 @@ impl<'a> Changelog<'a> {
     /// found.
     pub fn nearest(path: &Path) -> Result<Changelog, ChangelogFromPathError> {
         changelog_try_from_nearest(path)
+    }
+
+    pub fn try_from_file_at(path: String) -> Result<Changelog<'a>, ChangelogFromPathError> {
+        Ok(Changelog::try_from(&mut File::open(Path::new(&path))?)?)
     }
 
     // TODO: Version section iterator, maybe even structured in some way?

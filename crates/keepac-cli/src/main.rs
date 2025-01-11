@@ -1,6 +1,7 @@
 pub mod commands;
 
 use clap::{Parser, Subcommand};
+use commands::show::ShowCommandOptions;
 use std::path::Path;
 
 #[derive(Debug, Parser)]
@@ -32,7 +33,10 @@ enum Command {
     Remove {},
     Search {},
     Secure {},
-    Show {},
+    Show {
+        #[command(flatten)]
+        options: commands::show::ShowCommandOptions,
+    },
     Versions {},
     Yank {},
 }
@@ -40,23 +44,25 @@ enum Command {
 type SubcommandResult = Result<(), anyhow::Error>;
 
 fn run(cli: Cli, path: &Path) -> SubcommandResult {
-    let command = cli.command.unwrap_or(Command::Show {});
+    let command = cli.command.unwrap_or(Command::Show {
+        options: ShowCommandOptions::default(),
+    });
     match command {
         /* change */ Command::Add {} => todo!(),
         /* change */ Command::Change {} => todo!(),
         /* change */ Command::Deprecate {} => todo!(),
         Command::Diff {} => todo!(),
-        Command::Edit {} => commands::edit(path),
-        Command::Find {} => commands::find(path),
+        Command::Edit {} => commands::edit::edit(path),
+        Command::Find {} => commands::find::find(path),
         /* change */ Command::Fix {} => todo!(),
-        Command::Init {} => commands::init(path),
+        Command::Init {} => commands::init::init(path),
         Command::Insert {} => todo!(),
         Command::Release {} => todo!(),
         /* change */ Command::Remove {} => todo!(),
         Command::Search {} => todo!(),
         /* change */ Command::Secure {} => todo!(),
-        Command::Show {} => commands::show(path),
-        Command::Versions {} => commands::versions(path),
+        Command::Show { options } => commands::show::show(path, options),
+        Command::Versions {} => commands::versions::versions(path),
         Command::Yank {} => todo!(),
     }
 }

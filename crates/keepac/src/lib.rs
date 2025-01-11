@@ -4,10 +4,12 @@ pub mod changelog;
 pub mod find;
 /// Parse changelogs given a few structural constraints.
 pub mod parse;
-/// Render out changelogs to the terminal.
-pub mod render;
 
 /// Treesitter utilities for markdown files
 pub mod markdown;
+
+pub mod highlight;
+
+pub mod theme;
 
 pub use changelog::Changelog;

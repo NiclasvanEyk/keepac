@@ -1,6 +1,6 @@
 use anyhow::anyhow;
-use keepac::render::render;
 use std::{fs::File, io::Write, path::Path};
+use termcolor::{BufferWriter, ColorChoice};
 
 use crate::SubcommandResult;
 
@@ -23,12 +23,14 @@ pub(crate) fn init(path: &Path) -> SubcommandResult {
     let mut changelog = File::create_new(&changelog_path)?;
     changelog.write_all(TEMPLATE.as_bytes())?;
 
-    // TODO: Print _highlighted_ to console
     println!(
         "Initialized empty changelog at {}:",
         changelog_path.display()
     );
-    render(TEMPLATE);
+    let writer = BufferWriter::stdout(ColorChoice::Always);
+    let mut buffer = writer.buffer();
+    keepac::highlight::render(&mut buffer, TEMPLATE)?;
+    writer.print(&buffer)?;
     Ok(())
 }
 
