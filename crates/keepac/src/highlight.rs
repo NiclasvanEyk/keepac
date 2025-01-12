@@ -1,24 +1,10 @@
 use std::io::{Result, Write};
+
+use pulldown_cmark::{Event, HeadingLevel, Options, Parser, Tag, TagEnd};
 use termcolor::{Buffer, Color, ColorSpec, HyperlinkSpec, WriteColor};
 use textwrap::{fill, Options as WrapOptions};
 
-use pulldown_cmark::{Event, HeadingLevel, Options, Parser, Tag, TagEnd};
-
-// struct RenderOptions {
-//     width: usize,
-//     padding_top: usize,
-//     padding_left: usize,
-// }
-
-// impl Default for RenderOptions {
-//     fn default() -> Self {
-//         RenderOptions {
-//             width: 80,
-//             padding_top: 1,
-//             padding_left: 2,
-//         }
-//     }
-// }
+use crate::theming;
 
 fn flush_to_source(
     buffer: &mut Buffer,
@@ -38,27 +24,75 @@ fn flush_to_source(
     Ok(())
 }
 
+/// What are we rendering right now.
+/// Imporant for e.g. text styling, since we e.g. want to e.g. highlight
 enum RenderContext {
     VersionHeading,
     ChangeCategoryHeading,
 }
 
-enum ChangeCategory {
+enum BlockComponent {
+    Heading,
+    BlockQuote,
+    ListItem, // Maybe also just List?
+}
+
+enum InlineComponent {
+    /// You can have a bold/code/italic link
+    Link,
+}
+
+/// TODO
+///
+/// This is basically enabling us to e.g. JUST temporarily force the text being
+/// bold, and then return to the previous state without also modifying something
+/// else. We can not simply set bold to false inside bold, and then for the
+/// end tag set it to `false` again, since e.g. somebody may have used the bold
+/// text in a heading, which we might want to always print bold. Or italic.
+enum InlineModifier {
+    Bold,
+    Italic,
+    Code,
+}
+
+/// What we are rendering here
+///
+/// This could probably also be a stack-like structure, but this way it is maybe
+/// a bit easier to see the possible combinations.
+struct Context {
+    block_component: Option<RenderContext>,
+    inline_component: Option<InlineComponent>,
+    inline_modifier: Option<InlineModifier>,
+}
+
+/// A category for the changes inside a release.
+///
+/// Currently these strictly follow the Keep a Changelog ones, but in theory we
+/// could easily extend this to dynamic strings (based on some kind of
+/// configuration or theming), and be a bit more flexible. Maybe these could
+/// also be inferred from the existing changelog text, but that would likely
+/// require multiple passes not a fan of that.
+enum ChangeType {
     /// New features.
     Added,
+
     /// Changes in existing functionality.
     Changed,
+
     /// Soon-to-be removed features.
     Deprecated,
+
     /// Now removed features.
     Removed,
+
     /// Any bug fixes.
     Fixed,
+
     /// In case of vulnerabilities.
     Security,
 }
 
-impl ChangeCategory {
+impl ChangeType {
     fn parse(value: &str) -> Option<Self> {
         match value.to_lowercase().as_str() {
             "added" => Some(Self::Added),
@@ -72,30 +106,56 @@ impl ChangeCategory {
     }
 }
 
-fn horizontal_rule(width: usize, buffer: &mut Buffer) -> Result<()> {
-    buffer.set_color(
-        ColorSpec::new()
-            .set_fg(Some(Color::Ansi256(250)))
-            .set_dimmed(true),
-    )?;
-    let rule = '┈'.to_string().repeat(width);
+fn horizontal_rule(buffer: &mut Buffer, width: usize, color: Color, character: &str) -> Result<()> {
+    buffer.set_color(ColorSpec::new().set_fg(Some(color)).set_dimmed(true))?;
+    let rule = character.repeat(width);
     write!(buffer, "{}", rule)?;
     buffer.reset()
 }
 
-pub fn render(source_buffer: &mut Buffer, source: &str) -> Result<()> {
+// TODO: Refactor styling. Pre-compute colors upfront per "component", and have
+//       modifiers(?) for stuff like emph, link, or inline code.
+
+pub struct RenderingOptions {
+    /// The max width of a line of charactes.
+    pub width: usize,
+
+    /// Icons used throughout several components.
+    pub icons: theming::Icons,
+
+    /// All the various icons, box-drawing characters, and prefixes that are
+    /// decorational only.
+    pub decorations: theming::Decorations,
+
+    pub colors: theming::Colors,
+}
+
+impl Default for RenderingOptions {
+    fn default() -> Self {
+        RenderingOptions {
+            width: 80,
+            icons: theming::Icons::nerdfont(),
+            decorations: theming::Decorations::default(),
+            colors: theming::Colors::default(),
+        }
+    }
+}
+
+pub fn render_with_options(
+    source_buffer: &mut Buffer,
+    source: &str,
+    options: &RenderingOptions,
+) -> Result<()> {
     let parser = Parser::new_ext(source, Options::all());
     let mut render_context: Option<RenderContext> = None;
-    let mut inside_link = false;
 
-    let width = 80;
     let mut buffer = source_buffer.clone();
     write!(source_buffer, "\n")?;
 
     let mut colors = ColorSpec::new();
     buffer.set_color(&colors)?;
 
-    for (event, range) in parser.into_offset_iter() {
+    for (event, _) in parser.into_offset_iter() {
         // eprintln!("{:?} {:?}", range, event);
 
         match event {
@@ -113,7 +173,12 @@ pub fn render(source_buffer: &mut Buffer, source: &str) -> Result<()> {
                         buffer.set_color(&colors)?;
                     }
                     HeadingLevel::H2 => {
-                        horizontal_rule(width, source_buffer)?;
+                        horizontal_rule(
+                            source_buffer,
+                            options.width,
+                            Color::Cyan,
+                            &options.decorations.horizontal_rule,
+                        )?;
                         write!(source_buffer, "\n\n")?;
                         render_context = Some(RenderContext::VersionHeading);
                         colors.set_bold(false);
@@ -161,7 +226,6 @@ pub fn render(source_buffer: &mut Buffer, source: &str) -> Result<()> {
                     title: _,
                     id: _,
                 } => {
-                    inside_link = true;
                     buffer.set_hyperlink(&HyperlinkSpec::open(dest_url.as_bytes()))?;
                     colors.set_underline(true);
                     colors.set_fg(Some(Color::Cyan));
@@ -181,7 +245,7 @@ pub fn render(source_buffer: &mut Buffer, source: &str) -> Result<()> {
                     flush_to_source(
                         &mut buffer,
                         source_buffer,
-                        &WrapOptions::new(width)
+                        &WrapOptions::new(options.width)
                             .initial_indent("  ")
                             .subsequent_indent("  "),
                         "\n\n",
@@ -189,11 +253,13 @@ pub fn render(source_buffer: &mut Buffer, source: &str) -> Result<()> {
                 }
                 TagEnd::Heading(_) => {
                     render_context = None;
+                    colors.set_bold(false);
+                    buffer.set_color(&colors)?;
                     buffer.reset()?;
                     flush_to_source(
                         &mut buffer,
                         source_buffer,
-                        &WrapOptions::new(width)
+                        &WrapOptions::new(options.width)
                             .initial_indent("  ")
                             .subsequent_indent("  "),
                         "\n\n",
@@ -211,8 +277,11 @@ pub fn render(source_buffer: &mut Buffer, source: &str) -> Result<()> {
                     flush_to_source(
                         &mut buffer,
                         source_buffer,
-                        &WrapOptions::new(width)
-                            .initial_indent("  - ")
+                        &WrapOptions::new(options.width)
+                            .initial_indent(&format!(
+                                "  {} ",
+                                options.decorations.unordered_list_item
+                            ))
                             .subsequent_indent("    "),
                         "\n",
                     )?;
@@ -231,8 +300,9 @@ pub fn render(source_buffer: &mut Buffer, source: &str) -> Result<()> {
                 TagEnd::Link => {
                     buffer.set_hyperlink(&HyperlinkSpec::close())?;
                     colors.set_underline(false);
+                    colors.set_fg(None);
+                    colors.reset();
                     buffer.set_color(&colors)?;
-                    inside_link = false;
                 }
                 TagEnd::Image => {}
                 TagEnd::MetadataBlock(_) => {}
@@ -241,29 +311,42 @@ pub fn render(source_buffer: &mut Buffer, source: &str) -> Result<()> {
                 None => write!(buffer, "{}", text)?,
                 Some(ref context) => match context {
                     RenderContext::VersionHeading => {
+                        // TODO: Maybe somehow put these in a separate buffer
+                        // so that we can left align the version and right-align
+                        // the date. That would be _really_ cool!
+                        // Maybe we could even merge the first subheading and
+                        // the version/date part into one? Would be a bit
+                        // against the document structure, but that does not
+                        // really matter that much.
+                        //
+                        // Alternatively, we could render the subheadings as
+                        // HRs like this:
+                        // TAG -----------------------------------------Date
                         if text.starts_with(" - ") {
                             // Release date
                             let date = text.strip_prefix(" - ");
                             match date {
-                                Some(date) => write!(buffer, " - \u{eab0} {}", date)?,
+                                Some(date) => {
+                                    write!(buffer, " - {} {}", options.icons.calendar, date)?
+                                }
                                 // Fallback
                                 None => write!(buffer, "{}", text)?,
                             }
                         } else {
                             // Version tag
-                            write!(buffer, "\u{ea66} {}", text)?
+                            write!(buffer, "{} {}", options.icons.tag, text)?
                         }
                     }
                     RenderContext::ChangeCategoryHeading => {
-                        let category = ChangeCategory::parse(text.as_ref());
+                        let category = ChangeType::parse(text.as_ref());
                         let icon = match &category {
                             Some(c) => match c {
-                                ChangeCategory::Added => Some("\u{eadc}"),
-                                ChangeCategory::Changed => Some("\u{eae0}"),
-                                ChangeCategory::Deprecated => Some("\u{ea98}"),
-                                ChangeCategory::Removed => Some("\u{eadf}"),
-                                ChangeCategory::Fixed => Some("\u{ead8}"),
-                                ChangeCategory::Security => Some("\u{eb53}"),
+                                ChangeType::Added => Some(options.icons.added),
+                                ChangeType::Changed => Some(options.icons.changed),
+                                ChangeType::Deprecated => Some(options.icons.deprecated),
+                                ChangeType::Removed => Some(options.icons.removed),
+                                ChangeType::Fixed => Some(options.icons.fixed),
+                                ChangeType::Security => Some(options.icons.security),
                             },
                             None => None,
                         };
@@ -272,22 +355,22 @@ pub fn render(source_buffer: &mut Buffer, source: &str) -> Result<()> {
 
                         match &category {
                             Some(c) => match c {
-                                ChangeCategory::Added => {
+                                ChangeType::Added => {
                                     colors.set_fg(Some(Color::Green));
                                 }
-                                ChangeCategory::Changed => {
+                                ChangeType::Changed => {
                                     colors.set_fg(Some(Color::Yellow));
                                 }
-                                ChangeCategory::Deprecated => {
+                                ChangeType::Deprecated => {
                                     colors.set_fg(Some(Color::Yellow));
                                 }
-                                ChangeCategory::Removed => {
+                                ChangeType::Removed => {
                                     colors.set_fg(Some(Color::Red));
                                 }
-                                ChangeCategory::Fixed => {
+                                ChangeType::Fixed => {
                                     colors.set_fg(Some(Color::Cyan));
                                 }
-                                ChangeCategory::Security => {
+                                ChangeType::Security => {
                                     colors.set_fg(Some(Color::Blue));
                                 }
                             },
@@ -323,6 +406,10 @@ pub fn render(source_buffer: &mut Buffer, source: &str) -> Result<()> {
     Ok(())
 }
 
+pub fn render(source_buffer: &mut Buffer, source: &str) -> Result<()> {
+    render_with_options(source_buffer, source, &RenderingOptions::default())
+}
+
 #[cfg(test)]
 mod tests {
     use termcolor::{BufferWriter, ColorChoice};
@@ -330,6 +417,8 @@ mod tests {
     use super::*;
 
     /// Renders the source and compares it to the expected result.
+    ///
+    /// This version actually renders out ANSI escape sequences etc.
     fn assert_renders(source: &str, expected_result: &str) {
         let writer = BufferWriter::stdout(ColorChoice::Always);
         let mut buffer = writer.buffer();
@@ -357,18 +446,29 @@ mod tests {
     pub fn it_renders_links() {
         assert_renders(
             "[Google](https://google.com)",
-            "\u{1b}]8;;Google\u{1b}\\https://google.com\u{1b}]8;;\u{1b}\\",
+            "\n  \u{1b}[0m\u{1b}]8;;https://google.com\u{1b}\\\u{1b}[0m\u{1b}[4m\u{1b}[36mGoogle\u{1b}]8;;\u{1b}\\\u{1b}[0m\u{1b}[36m\u{1b}[0m\n\n",
         );
     }
 
     #[test]
+    pub fn it_renders_links_plus_surrounding_text() {
+        assert_renders(
+            "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).",
+            "",
+        )
+    }
+
+    #[test]
     pub fn single_word() {
-        assert_renders_plain("word", "  \n  word\n  \n  ");
+        assert_renders_plain("word", "\n  word\n\n");
     }
 
     #[test]
     pub fn lists() {
-        assert_renders_plain("- This is a really long list item, that spans multiple lines and should be wrapped correctly. It even has punctuation!", "");
+        assert_renders_plain(
+            "- This is a really long list item, that spans multiple lines and should be wrapped correctly. It even has punctuation!",
+            "\n  • This is a really long list item, that spans multiple lines and should be\n    wrapped correctly. It even has punctuation!\n\n"
+        );
     }
 
     #[test]
@@ -380,7 +480,7 @@ This is is another paragraph.
 The sentences should not be organized by line, but grouped together inside a paragraph.
 "#
             .trim(),
-            "  This is one paragraph. This is is another paragraph. The sentences should not\n  be organized by line, but grouped together inside a paragraph.\n  \n  ",
+            "\n  This is one paragraph. This is is another paragraph. The sentences should not\n  be organized by line, but grouped together inside a paragraph.\n\n",
         );
     }
 }

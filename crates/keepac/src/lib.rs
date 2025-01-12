@@ -10,6 +10,6 @@ pub mod markdown;
 
 pub mod highlight;
 
-pub mod theme;
+pub mod theming;
 
 pub use changelog::Changelog;
